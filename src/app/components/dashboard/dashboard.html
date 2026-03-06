@@ -1,0 +1,124 @@
+@let p = player();
+
+@if (p) {
+  <div class="dashboard">
+    <!-- ─── Header ─────────────────────────────────────────────────────────── -->
+    <header class="dashboard-header" role="banner">
+      <div class="header-brand" aria-label="World Order game">
+        <span class="game-logo" aria-hidden="true">🌍</span>
+        <span class="game-title">World Order</span>
+      </div>
+
+      <div class="header-country" aria-label="Your country information">
+        <span class="country-badge" [style.background-color]="p.color" aria-hidden="true">{{ p.code }}</span>
+        <div class="country-info">
+          <span class="country-name">{{ p.name }}</span>
+          <span class="country-stats" aria-label="GDP and rank">
+            {{ formatGdp(p.gdp) }}
+            &nbsp;·&nbsp;
+            <span [style.color]="growthColor(p.gdpGrowthRate)">
+              {{ p.gdpGrowthRate >= 0 ? '+' : '' }}{{ p.gdpGrowthRate.toFixed(1) }}%
+            </span>
+          </span>
+        </div>
+      </div>
+
+      <div class="header-rank" aria-label="Your global rank">
+        <span class="rank-label">Global Rank</span>
+        <span class="rank-value">#{{ rank() }}<span class="rank-total"> / {{ totalCountries() }}</span></span>
+      </div>
+
+      <div class="header-time" aria-label="Current game year and quarter">
+        <span class="time-label">Year {{ year() }}</span>
+        <span class="time-quarter">Q{{ quarter() }}</span>
+      </div>
+
+      <button
+        class="next-turn-btn"
+        [class.advancing]="advancing()"
+        type="button"
+        (click)="advanceTurn()"
+        [attr.disabled]="advancing() ? '' : null"
+        [attr.aria-disabled]="advancing()"
+        aria-label="Advance to next quarter"
+        title="Simulate the next quarter (3 months)"
+      >
+        @if (advancing()) {
+          <span class="spin" aria-hidden="true">⟳</span>
+          Processing…
+        } @else {
+          ▶ Next Turn
+        }
+      </button>
+    </header>
+
+    <!-- ─── Recent Event Banner ───────────────────────────────────────────── -->
+    @if (recentEvents().length > 0) {
+      @let latest = recentEvents()[0];
+      <div
+        class="event-banner"
+        [class.event-banner--positive]="latest.severity === 'positive'"
+        [class.event-banner--negative]="latest.severity === 'negative'"
+        role="status"
+        aria-live="polite"
+        [attr.aria-label]="'Latest event: ' + latest.title"
+      >
+        <span class="event-banner-icon" aria-hidden="true">
+          {{ latest.severity === 'positive' ? '📈' : latest.severity === 'negative' ? '📉' : 'ℹ️' }}
+        </span>
+        <span class="event-banner-title">{{ latest.title }}</span>
+        <span class="event-banner-desc">{{ latest.description }}</span>
+      </div>
+    }
+
+    <!-- ─── Tab Navigation ────────────────────────────────────────────────── -->
+    <nav class="tab-nav" aria-label="Dashboard sections" role="tablist">
+      @for (tab of tabs; track tab.id) {
+        <button
+          role="tab"
+          [class.active]="activeTab() === tab.id"
+          [attr.aria-selected]="activeTab() === tab.id"
+          [attr.tabindex]="activeTab() === tab.id ? 0 : -1"
+          [attr.aria-controls]="tab.id + '-panel'"
+          type="button"
+          (click)="setTab(tab.id)"
+          class="tab-btn"
+        >
+          <span class="tab-icon" aria-hidden="true">{{ tab.icon }}</span>
+          <span class="tab-label">{{ tab.label }}</span>
+        </button>
+      }
+    </nav>
+
+    <!-- ─── Panel Content ─────────────────────────────────────────────────── -->
+    <main class="dashboard-content" role="main">
+      @switch (activeTab()) {
+        @case ('overview') {
+          <div id="overview-panel" role="tabpanel" aria-label="Overview panel">
+            <app-overview-panel />
+          </div>
+        }
+        @case ('population') {
+          <div id="population-panel" role="tabpanel" aria-label="Population panel">
+            <app-population-panel />
+          </div>
+        }
+        @case ('economy') {
+          <div id="economy-panel" role="tabpanel" aria-label="Economy panel">
+            <app-economy-panel />
+          </div>
+        }
+        @case ('geopolitics') {
+          <div id="geopolitics-panel" role="tabpanel" aria-label="Geopolitics panel">
+            <app-geopolitics-panel />
+          </div>
+        }
+        @case ('policies') {
+          <div id="policies-panel" role="tabpanel" aria-label="Policies panel">
+            <app-policies-panel />
+          </div>
+        }
+      }
+    </main>
+  </div>
+}

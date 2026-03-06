@@ -1,0 +1,322 @@
+:host {
+  display: block;
+}
+
+.overview {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+// ─── Section Titles ───────────────────────────────────────────────────────────
+
+.section-title {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 0 0 1rem;
+}
+
+// ─── Key Stats ────────────────────────────────────────────────────────────────
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  &--gdp {
+    border-color: rgba(0, 212, 255, 0.3);
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.06), var(--bg-card));
+  }
+}
+
+.stat-label {
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stat-value {
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  line-height: 1.2;
+}
+
+.rank-value {
+  color: var(--primary);
+}
+
+.stat-sub {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-family: 'Courier New', monospace;
+}
+
+// ─── Chart ───────────────────────────────────────────────────────────────────
+
+.chart-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+}
+
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 100px;
+  padding-bottom: 1.5rem;
+  position: relative;
+}
+
+.bar-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  position: relative;
+}
+
+.bar {
+  width: 100%;
+  min-height: 4px;
+  background: linear-gradient(to top, var(--primary), rgba(0, 212, 255, 0.4));
+  border-radius: 4px 4px 0 0;
+  transition: height 0.4s ease;
+}
+
+.bar-label {
+  position: absolute;
+  bottom: -1.3rem;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-family: 'Courier New', monospace;
+}
+
+// ─── Indicators ──────────────────────────────────────────────────────────────
+
+.indicators-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+}
+
+.indicators-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.indicator {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.indicator-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.indicator-label {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  flex: 1;
+}
+
+.indicator-value {
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  min-width: 28px;
+  text-align: right;
+}
+
+.progress-bar {
+  height: 5px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.5s ease;
+}
+
+// ─── Rankings ────────────────────────────────────────────────────────────────
+
+.rankings-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+}
+
+.rankings-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ranking-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+
+  &--player {
+    background: rgba(0, 212, 255, 0.07);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+  }
+}
+
+.rank-num {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  min-width: 28px;
+  font-family: 'Courier New', monospace;
+}
+
+.country-badge {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.68rem;
+  flex-shrink: 0;
+}
+
+.country-name {
+  flex: 1;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.country-gdp {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+.gdp-growth {
+  font-size: 0.78rem;
+  font-family: 'Courier New', monospace;
+  min-width: 50px;
+  text-align: right;
+}
+
+// ─── Events ──────────────────────────────────────────────────────────────────
+
+.events-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+}
+
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.event-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+
+  &--positive {
+    border-color: rgba(0, 230, 118, 0.25);
+    background: rgba(0, 230, 118, 0.05);
+  }
+
+  &--negative {
+    border-color: rgba(255, 23, 68, 0.25);
+    background: rgba(255, 23, 68, 0.05);
+  }
+
+  &--neutral {
+    border-color: rgba(0, 212, 255, 0.15);
+    background: rgba(0, 212, 255, 0.03);
+  }
+}
+
+.event-severity-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+
+  .event-card--positive & { background: var(--success); }
+  .event-card--negative & { background: var(--danger); }
+  .event-card--neutral & { background: var(--primary); }
+}
+
+.event-content {
+  flex: 1;
+}
+
+.event-title {
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.event-desc {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.event-type-badge {
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 4px;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.5rem;
+  text-transform: uppercase;
+  white-space: nowrap;
+  align-self: flex-start;
+}

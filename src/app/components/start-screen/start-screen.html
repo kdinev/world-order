@@ -1,0 +1,114 @@
+<div class="start-screen">
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <main class="content" role="main">
+    <header class="title-section">
+      <div class="world-icon" aria-hidden="true">🌐</div>
+      <h1 class="game-title">WORLD ORDER</h1>
+      <p class="subtitle">Build your nation. Shape the world.</p>
+    </header>
+
+    @if (!selectedPreset()) {
+      <section class="preset-selection" aria-label="Choose nation foundation">
+        <h2 class="section-heading">Choose Your Nation's Foundation</h2>
+        <div class="presets-grid">
+          @for (preset of presets; track preset.id) {
+            <button
+              class="preset-card"
+              type="button"
+              (click)="selectPreset(preset.id)"
+              [attr.aria-label]="'Select ' + preset.label + ' preset: ' + preset.tagline"
+            >
+              <div class="preset-icon" aria-hidden="true">{{ preset.icon }}</div>
+              <h3 class="preset-name">{{ preset.label }}</h3>
+              <p class="preset-tagline">{{ preset.tagline }}</p>
+              <p class="preset-desc">{{ preset.description }}</p>
+              <span class="preset-cta">Select →</span>
+            </button>
+          }
+        </div>
+      </section>
+    } @else {
+      <section class="nation-setup" aria-label="Configure your nation">
+        <button class="back-btn" type="button" (click)="backToPresets()">← Back</button>
+
+        <h2 class="section-heading">Establish Your Nation</h2>
+
+        <form [formGroup]="form" (ngSubmit)="startGame()" class="setup-form" novalidate>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="countryName" class="field-label">Nation Name</label>
+              <input
+                id="countryName"
+                type="text"
+                formControlName="countryName"
+                class="field-input"
+                placeholder="e.g. Novara"
+                autocomplete="off"
+                [attr.aria-invalid]="form.controls.countryName.invalid && form.controls.countryName.touched"
+                [attr.aria-describedby]="form.controls.countryName.invalid && form.controls.countryName.touched ? 'name-error' : null"
+              />
+              @if (form.controls.countryName.invalid && form.controls.countryName.touched) {
+                <span id="name-error" class="field-error" role="alert">Enter a name between 2 and 24 characters.</span>
+              }
+            </div>
+
+            <div class="form-field form-field--short">
+              <label for="countryCode" class="field-label">Country Code</label>
+              <div class="code-preview-wrapper">
+                <div class="code-badge" [style.background-color]="selectedColor()" aria-hidden="true">
+                  {{ codePreview() || '??' }}
+                </div>
+                <input
+                  id="countryCode"
+                  type="text"
+                  formControlName="countryCode"
+                  class="field-input code-input"
+                  placeholder="XX"
+                  maxlength="2"
+                  autocomplete="off"
+                  [attr.aria-invalid]="form.controls.countryCode.invalid && form.controls.countryCode.touched"
+                  [attr.aria-describedby]="form.controls.countryCode.invalid && form.controls.countryCode.touched ? 'code-error' : null"
+                />
+              </div>
+              @if (form.controls.countryCode.invalid && form.controls.countryCode.touched) {
+                <span id="code-error" class="field-error" role="alert">Enter exactly 2 letters.</span>
+              }
+            </div>
+          </div>
+
+          <div class="color-picker" role="group" aria-label="Choose flag colour">
+            <span class="field-label">Flag Colour</span>
+            <div class="color-swatches">
+              @for (color of colors; track color) {
+                <button
+                  type="button"
+                  class="color-swatch"
+                  [style.background-color]="color"
+                  [class.active]="selectedColor() === color"
+                  (click)="selectedColor.set(color)"
+                  [attr.aria-label]="'Select colour ' + color"
+                  [attr.aria-pressed]="selectedColor() === color"
+                ></button>
+              }
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="establish-btn"
+            [attr.disabled]="form.invalid ? '' : null"
+            [attr.aria-disabled]="form.invalid"
+          >
+            🌐 Establish Nation
+          </button>
+        </form>
+      </section>
+    }
+  </main>
+</div>

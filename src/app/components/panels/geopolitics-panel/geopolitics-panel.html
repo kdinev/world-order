@@ -1,0 +1,209 @@
+@let p = player();
+
+@if (p) {
+  <div class="geopolitics">
+    <!-- World Rankings Table -->
+    <section class="rankings-section" aria-label="World GDP rankings">
+      <h3 class="section-title">World Rankings by GDP</h3>
+      <table class="rankings-table" aria-label="Country GDP rankings">
+        <thead>
+          <tr>
+            <th scope="col">Rank</th>
+            <th scope="col">Country</th>
+            <th scope="col">GDP</th>
+            <th scope="col">GDP/Capita</th>
+            <th scope="col">Population</th>
+            <th scope="col">Growth</th>
+            <th scope="col" class="col-actions">Relations / Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (country of ranked(); track country.id; let i = $index) {
+            <tr
+              [class.row--player]="country.isPlayer"
+              [class.row--selected]="selectedCountryId() === country.id"
+              (click)="country.isPlayer ? null : selectCountry(country.id)"
+              [attr.aria-selected]="selectedCountryId() === country.id"
+              [attr.tabindex]="country.isPlayer ? null : 0"
+              (keydown.enter)="country.isPlayer ? null : selectCountry(country.id)"
+              [attr.role]="country.isPlayer ? null : 'button'"
+            >
+              <td class="col-rank">
+                @if (i < 3) {
+                  <span class="medal" [class]="'medal--' + (i + 1)" aria-hidden="true">
+                    {{ i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉' }}
+                  </span>
+                } @else {
+                  <span class="rank-num">#{{ i + 1 }}</span>
+                }
+              </td>
+              <td class="col-country">
+                <span class="country-badge" [style.background-color]="country.color" aria-hidden="true">{{ country.code }}</span>
+                <span class="country-name">{{ country.name }}</span>
+                @if (country.isPlayer) {
+                  <span class="you-badge" aria-label="Your country">YOU</span>
+                }
+              </td>
+              <td class="col-gdp">{{ formatGdp(country.gdp) }}</td>
+              <td class="col-gdpcap">${{ country.gdpPerCapita.toLocaleString() }}</td>
+              <td class="col-pop">{{ formatPop(country.population) }}</td>
+              <td class="col-growth" [style.color]="country.gdpGrowthRate >= 0 ? 'var(--success)' : 'var(--danger)'">
+                {{ country.gdpGrowthRate >= 0 ? '+' : '' }}{{ country.gdpGrowthRate.toFixed(1) }}%
+              </td>
+              <td class="col-actions">
+                @if (!country.isPlayer) {
+                  @let rel = p.relations.find(r => r.countryId === country.id);
+                  @if (rel) {
+                    <span class="stance-badge" [style.color]="stanceColor(rel.stance)" [attr.aria-label]="'Diplomatic stance: ' + rel.stance">
+                      <span aria-hidden="true">{{ stanceIcon(rel.stance) }}</span>
+                      {{ rel.stance }}
+                    </span>
+                    @if (rel.tradeAgreement) {
+                      <span class="tag tag--trade" title="Trade agreement active">📦 Trade</span>
+                    }
+                    @if (rel.defenseAlliance) {
+                      <span class="tag tag--alliance" title="Defense alliance active">🛡️ Alliance</span>
+                    }
+                    @if (rel.sanctionsActive) {
+                      <span class="tag tag--sanction" title="Sanctions active">🚫 Sanctions</span>
+                    }
+                  }
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Diplomatic Actions (shown when a country is selected) -->
+    @if (selectedRelation(); as rel) {
+      @let target = selectedCountry();
+      @if (target) {
+        <section class="diplomacy-section" aria-label="Diplomatic actions">
+          <h3 class="section-title">
+            Diplomacy with
+            <span class="country-badge" [style.background-color]="target.color" aria-hidden="true">{{ target.code }}</span>
+            {{ target.name }}
+          </h3>
+
+          <div class="diplomacy-layout">
+            <!-- Relation Score -->
+            <div class="relation-score-card">
+              <span class="rel-label">Relation Score</span>
+              <span class="rel-score" [style.color]="stanceColor(rel.stance)">{{ rel.score.toFixed(0) }}</span>
+              <div class="rel-bar-track" role="progressbar" [attr.aria-valuenow]="rel.score" aria-valuemin="-100" aria-valuemax="100" [attr.aria-label]="'Relation score ' + rel.score.toFixed(0)">
+                <div class="rel-bar-fill" [style.width.%]="scoreBar(rel.score)" [style.background]="stanceColor(rel.stance)"></div>
+              </div>
+              <span class="rel-stance" [style.color]="stanceColor(rel.stance)">
+                {{ stanceIcon(rel.stance) }} {{ rel.stance | titlecase }}
+              </span>
+              @if (rel.tradeAgreement) {
+                <span class="rel-tag">📦 Trade Agreement Active</span>
+              }
+              @if (rel.defenseAlliance) {
+                <span class="rel-tag">🛡️ Defense Alliance Active</span>
+              }
+              @if (rel.sanctionsActive) {
+                <span class="rel-tag danger">🚫 Sanctions Active</span>
+              }
+            </div>
+
+            <!-- Country Info -->
+            <div class="target-info-card">
+              <div class="info-row"><span>GDP</span><strong>{{ formatGdp(target.gdp) }}</strong></div>
+              <div class="info-row"><span>Population</span><strong>{{ formatPop(target.population) }}</strong></div>
+              <div class="info-row"><span>GDP/Capita</span><strong>${{ target.gdpPerCapita.toLocaleString() }}</strong></div>
+              <div class="info-row"><span>Military Strength</span><strong>{{ target.militaryStrength.toFixed(0) }}/100</strong></div>
+              <div class="info-row"><span>Trade Policy</span><strong>{{ target.policies.tradePolicy | titlecase }}</strong></div>
+              <div class="info-row"><span>Growth Rate</span><strong [style.color]="target.gdpGrowthRate >= 0 ? 'var(--success)' : 'var(--danger)'">{{ target.gdpGrowthRate >= 0 ? '+' : '' }}{{ target.gdpGrowthRate.toFixed(1) }}%</strong></div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons" role="group" [attr.aria-label]="'Diplomatic actions with ' + target.name">
+              <button
+                class="action-btn action-btn--positive"
+                type="button"
+                (click)="improveRelations()"
+                title="Spend diplomatic capital to improve the relationship"
+                aria-label="Improve relations — costs diplomatic capital"
+              >
+                🤝 Improve Relations
+              </button>
+
+              <button
+                class="action-btn action-btn--positive"
+                type="button"
+                (click)="sendAid()"
+                title="Send $1B in foreign aid, +2 relation score"
+                aria-label="Send 1 billion in foreign aid"
+              >
+                💰 Send $1B Aid
+              </button>
+
+              @if (!rel.tradeAgreement) {
+                <button
+                  class="action-btn"
+                  type="button"
+                  (click)="signTrade()"
+                  [attr.disabled]="rel.score < 20 ? '' : null"
+                  [attr.aria-disabled]="rel.score < 20"
+                  [attr.title]="rel.score < 20 ? 'Requires friendly relations (score ≥ 20)' : 'Sign a free trade agreement'"
+                  aria-label="Sign trade agreement — requires score of at least 20"
+                >
+                  📦 Sign Trade Agreement
+                </button>
+              } @else {
+                <button
+                  class="action-btn action-btn--negative"
+                  type="button"
+                  (click)="terminateTrade()"
+                  title="Terminate the trade agreement (-10 score)"
+                  aria-label="Terminate trade agreement"
+                >
+                  ❌ Terminate Trade Deal
+                </button>
+              }
+
+              @if (!rel.defenseAlliance) {
+                <button
+                  class="action-btn"
+                  type="button"
+                  (click)="signAlliance()"
+                  [attr.disabled]="rel.score < 50 ? '' : null"
+                  [attr.aria-disabled]="rel.score < 50"
+                  [attr.title]="rel.score < 50 ? 'Requires allied relations (score ≥ 50)' : 'Form a mutual defense alliance'"
+                  aria-label="Sign defense alliance — requires score of at least 50"
+                >
+                  🛡️ Sign Defense Alliance
+                </button>
+              }
+
+              @if (!rel.sanctionsActive) {
+                <button
+                  class="action-btn action-btn--negative"
+                  type="button"
+                  (click)="imposeSanctions()"
+                  title="Impose economic sanctions (-20 score, damages their economy)"
+                  aria-label="Impose economic sanctions"
+                >
+                  🚫 Impose Sanctions
+                </button>
+              } @else {
+                <button
+                  class="action-btn action-btn--positive"
+                  type="button"
+                  (click)="liftSanctions()"
+                  title="Lift the current sanctions (+5 score)"
+                  aria-label="Lift sanctions"
+                >
+                  ✅ Lift Sanctions
+                </button>
+              }
+            </div>
+          </div>
+        </section>
+      }
+    }
+  </div>
+}

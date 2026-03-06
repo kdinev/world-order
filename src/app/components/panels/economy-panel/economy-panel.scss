@@ -1,0 +1,281 @@
+:host {
+  display: block;
+}
+
+.economy {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.section-title {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 0 0 1rem;
+}
+
+// ─── Key Stats ────────────────────────────────────────────────────────────────
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  &--primary {
+    border-color: rgba(0, 212, 255, 0.3);
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.06), var(--bg-card));
+  }
+}
+
+.stat-label {
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stat-value {
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  line-height: 1.2;
+}
+
+.stat-sub {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+}
+
+// ─── Sectors ──────────────────────────────────────────────────────────────────
+
+.sectors-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+}
+
+.sector-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sector-row {
+  display: grid;
+  grid-template-columns: 28px 130px 1fr 44px;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sector-icon {
+  font-size: 1rem;
+  text-align: center;
+}
+
+.sector-label {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.sector-bar-track {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.sector-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.5s ease;
+}
+
+.sector-pct {
+  font-size: 0.82rem;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  text-align: right;
+}
+
+// ─── Trade ────────────────────────────────────────────────────────────────────
+
+.trade-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+}
+
+.trade-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.trade-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.8rem 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.trade-label {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
+.trade-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  color: var(--text-primary);
+
+  &.success { color: var(--success); }
+  &.danger { color: var(--danger); }
+  &.policy { color: var(--primary); font-family: inherit; font-size: 0.95rem; }
+}
+
+// ─── Business ─────────────────────────────────────────────────────────────────
+
+.business-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+}
+
+.business-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.business-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.biz-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.biz-label {
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+}
+
+.biz-val {
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+}
+
+.progress-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.5s ease;
+}
+
+// ─── Budget ───────────────────────────────────────────────────────────────────
+
+.budget-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+}
+
+.budget-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.budget-meta {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+
+  strong {
+    font-family: 'Courier New', monospace;
+  }
+}
+
+.budget-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.budget-bar-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 40px 70px;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.budget-bar-label {
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+}
+
+.budget-bar-track {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.budget-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+.budget-bar-pct {
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  text-align: right;
+}
+
+.budget-bar-amt {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-family: 'Courier New', monospace;
+  text-align: right;
+}

@@ -1,0 +1,218 @@
+@let p = player();
+
+@if (p) {
+  <div class="policies">
+
+    <!-- Budget Allocation -->
+    <section class="panel-card" aria-label="Budget allocation">
+      <h3 class="section-title">💰 Budget Allocation</h3>
+      <p class="section-desc">Distribute 100% of government revenue across spending categories. Must sum to exactly 100%.</p>
+
+      <form [formGroup]="budgetForm" (ngSubmit)="applyPolicies()" aria-label="Budget allocation form">
+        <div class="budget-grid">
+          @for (key of budgetKeys; track key) {
+            <div class="budget-row">
+              <div class="budget-header">
+                <span class="budget-icon" aria-hidden="true">{{ budgetIcons[key] }}</span>
+                <span class="budget-label">{{ key === 'socialPrograms' ? 'Social Programs' : (key | titlecase) }}</span>
+                <span class="budget-value">{{ budgetForm.get(key)?.value ?? 0 }}%</span>
+              </div>
+              <p class="budget-desc">{{ budgetDescriptions[key] }}</p>
+              <div class="slider-wrapper">
+                <input
+                  type="range"
+                  [id]="'budget-' + key"
+                  [formControlName]="key"
+                  min="0"
+                  max="100"
+                  step="1"
+                  class="slider"
+                  [attr.aria-label]="(key === 'socialPrograms' ? 'Social Programs' : key) + ' budget percentage'"
+                  [attr.aria-valuenow]="budgetForm.get(key)?.value ?? 0"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                />
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Budget Total Indicator -->
+        <div class="budget-total" role="status" [attr.aria-label]="'Budget total: ' + budgetTotal + ' percent'">
+          <span>Total Allocated:</span>
+          <span class="total-value" [style.color]="budgetTotalColor">{{ budgetTotal }}%</span>
+          @if (budgetTotal !== 100) {
+            <span class="total-hint" [style.color]="budgetTotalColor">
+              @if (budgetTotal < 100) {
+                ↑ Add {{ 100 - budgetTotal }}% more
+              } @else {
+                ↓ Remove {{ budgetTotal - 100 }}%
+              }
+            </span>
+          } @else {
+            <span class="total-hint success">✓ Budget balanced</span>
+          }
+        </div>
+
+        <div class="budget-bar-preview" role="presentation" aria-hidden="true">
+          @for (key of budgetKeys; track key) {
+            @let pct = budgetForm.get(key)?.value ?? 0;
+            @if (pct > 0) {
+              <div class="bar-segment" [style.flex]="pct" [attr.title]="key + ': ' + pct + '%'"></div>
+            }
+          }
+        </div>
+
+        <!-- Revenue Preview -->
+        <div class="revenue-preview">
+          <span class="rev-label">📊 Est. Gov. Revenue at current tax rate ({{ taxRate }}%)</span>
+          <span class="rev-value">${{ (govRevenue / 1000).toFixed(1) }}B / year</span>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button
+            type="button"
+            class="btn btn--secondary"
+            (click)="distribute()"
+            aria-label="Evenly distribute budget allocation"
+          >
+            ⚖️ Distribute Evenly
+          </button>
+          <button
+            type="submit"
+            class="btn btn--primary"
+            [attr.disabled]="!budgetValid ? '' : null"
+            [attr.aria-disabled]="!budgetValid"
+            [attr.title]="!budgetValid ? 'Budget must sum to exactly 100%' : 'Apply budget changes'"
+          >
+            ✓ Apply Policies
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Fiscal Policies -->
+    <section class="panel-card" aria-label="Fiscal and trade policies">
+      <h3 class="section-title">📋 Fiscal &amp; Trade Policies</h3>
+
+      <form [formGroup]="policyForm" aria-label="Policy settings form">
+        <!-- Tax Rate -->
+        <div class="policy-row">
+          <div class="policy-header">
+            <span class="policy-label">🧾 Tax Rate</span>
+            <span class="policy-value">{{ policyForm.get('taxRate')?.value }}%</span>
+          </div>
+          <p class="policy-desc">
+            @if ((policyForm.get('taxRate')?.value ?? 25) <= 20) {
+              Low taxes — stimulates business growth but reduces government revenue
+            } @else if ((policyForm.get('taxRate')?.value ?? 25) <= 35) {
+              Moderate taxes — balanced fiscal policy
+            } @else {
+              High taxes — more revenue but dampens business climate
+            }
+          </p>
+          <input
+            type="range"
+            id="taxRate"
+            formControlName="taxRate"
+            min="10"
+            max="50"
+            step="1"
+            class="slider"
+            aria-label="Tax rate percentage"
+            [attr.aria-valuenow]="policyForm.get('taxRate')?.value"
+            aria-valuemin="10"
+            aria-valuemax="50"
+          />
+          <div class="range-labels" aria-hidden="true">
+            <span>10% (Low)</span><span>30% (Mid)</span><span>50% (High)</span>
+          </div>
+        </div>
+
+        <!-- Trade Policy -->
+        <div class="policy-row">
+          <div class="policy-header">
+            <span class="policy-label">🌐 Trade Policy</span>
+            <span class="policy-value">{{ policyForm.get('tradePolicy')?.value | titlecase }}</span>
+          </div>
+          <div class="option-group" role="radiogroup" aria-label="Trade policy options">
+            @for (option of tradePolicies; track option) {
+              <label class="option-card" [class.selected]="policyForm.get('tradePolicy')?.value === option">
+                <input
+                  type="radio"
+                  formControlName="tradePolicy"
+                  [value]="option"
+                  class="sr-only"
+                  [attr.aria-label]="option + ' trade policy: ' + policyDescription('tradePolicy', option)"
+                />
+                <span class="option-name">{{ option | titlecase }}</span>
+                <span class="option-desc">{{ policyDescription('tradePolicy', option) }}</span>
+              </label>
+            }
+          </div>
+        </div>
+
+        <!-- Immigration Policy -->
+        <div class="policy-row">
+          <div class="policy-header">
+            <span class="policy-label">🛂 Immigration Policy</span>
+            <span class="policy-value">{{ policyForm.get('immigrationPolicy')?.value | titlecase }}</span>
+          </div>
+          <div class="option-group" role="radiogroup" aria-label="Immigration policy options">
+            @for (option of immigrationPolicies; track option) {
+              <label class="option-card" [class.selected]="policyForm.get('immigrationPolicy')?.value === option">
+                <input
+                  type="radio"
+                  formControlName="immigrationPolicy"
+                  [value]="option"
+                  class="sr-only"
+                  [attr.aria-label]="option + ' immigration policy: ' + policyDescription('immigrationPolicy', option)"
+                />
+                <span class="option-name">{{ option | titlecase }}</span>
+                <span class="option-desc">{{ policyDescription('immigrationPolicy', option) }}</span>
+              </label>
+            }
+          </div>
+        </div>
+
+        <!-- Environmental Policy -->
+        <div class="policy-row">
+          <div class="policy-header">
+            <span class="policy-label">🌿 Environmental Policy</span>
+            <span class="policy-value">{{ policyForm.get('envPolicy')?.value | titlecase }}</span>
+          </div>
+          <div class="option-group" role="radiogroup" aria-label="Environmental policy options">
+            @for (option of envPolicies; track option) {
+              <label class="option-card" [class.selected]="policyForm.get('envPolicy')?.value === option">
+                <input
+                  type="radio"
+                  formControlName="envPolicy"
+                  [value]="option"
+                  class="sr-only"
+                  [attr.aria-label]="option + ' environmental policy: ' + policyDescription('envPolicy', option)"
+                />
+                <span class="option-name">{{ option | titlecase }}</span>
+                <span class="option-desc">{{ policyDescription('envPolicy', option) }}</span>
+              </label>
+            }
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="button"
+            class="btn btn--primary"
+            (click)="applyPolicies()"
+            [attr.disabled]="!budgetValid ? '' : null"
+            [attr.aria-disabled]="!budgetValid"
+            aria-label="Apply all policy changes"
+          >
+            ✓ Apply Policies
+          </button>
+        </div>
+      </form>
+    </section>
+
+  </div>
+}

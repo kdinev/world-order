@@ -1,0 +1,347 @@
+@use 'sass:color';
+
+:host {
+  display: block;
+}
+
+.geopolitics {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+// ─── Rankings Section ─────────────────────────────────────────────────────────
+
+.rankings-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .country-badge {
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #fff;
+    font-weight: 700;
+  }
+}
+
+.rankings-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+
+  th {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  td {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid rgba(255 255 255 / 0.04);
+    vertical-align: middle;
+  }
+
+  tbody tr {
+    transition: background 0.15s;
+    cursor: pointer;
+
+    &:hover:not(.row--player) {
+      background: rgba(255 255 255 / 0.04);
+    }
+
+    &:focus-within {
+      outline: 2px solid var(--primary);
+      outline-offset: -2px;
+    }
+
+    &.row--player {
+      cursor: default;
+      background: rgba(0 212 255 / 0.06);
+
+      td {
+        border-bottom-color: rgba(0 212 255 / 0.15);
+      }
+    }
+
+    &.row--selected {
+      background: rgba(0 212 255 / 0.1);
+      outline: 1px solid rgba(0 212 255 / 0.4);
+    }
+  }
+}
+
+.col-rank {
+  width: 60px;
+  text-align: center;
+}
+
+.rank-num {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.medal {
+  font-size: 1.2rem;
+
+  &--1 { filter: drop-shadow(0 0 4px rgba(255 215 0 / 0.8)); }
+  &--2 { filter: drop-shadow(0 0 4px rgba(192 192 192 / 0.8)); }
+  &--3 { filter: drop-shadow(0 0 4px rgba(205 127 50 / 0.8)); }
+}
+
+.col-country {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.country-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 1.4rem;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+  letter-spacing: 0.04em;
+}
+
+.country-name {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.you-badge {
+  background: var(--primary);
+  color: #000;
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 3px;
+  letter-spacing: 0.05em;
+}
+
+.col-gdp, .col-gdpcap, .col-pop {
+  color: var(--text-secondary);
+}
+
+.col-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.stance-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: capitalize;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.tag {
+  font-size: 0.65rem;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-weight: 600;
+
+  &--trade { background: rgba(0 230 118 / 0.15); color: var(--success); }
+  &--alliance { background: rgba(0 212 255 / 0.15); color: var(--primary); }
+  &--sanction { background: rgba(255 23 68 / 0.15); color: var(--danger); }
+}
+
+// ─── Diplomacy Section ────────────────────────────────────────────────────────
+
+.diplomacy-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.diplomacy-layout {
+  display: grid;
+  grid-template-columns: 180px 1fr auto;
+  gap: 1.25rem;
+  align-items: start;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (max-width: 560px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Relation Score Card
+.relation-score-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+  text-align: center;
+}
+
+.rel-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+}
+
+.rel-score {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.rel-bar-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255 255 255 / 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.rel-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease, background 0.4s ease;
+}
+
+.rel-stance {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.rel-tag {
+  font-size: 0.65rem;
+  background: rgba(0 230 118 / 0.12);
+  color: var(--success);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 600;
+
+  &.danger {
+    background: rgba(255 23 68 / 0.12);
+    color: var(--danger);
+  }
+}
+
+// Target Info Card
+.target-info-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+  padding: 0.2rem 0;
+  border-bottom: 1px solid rgba(255 255 255 / 0.04);
+
+  &:last-child { border-bottom: none; }
+
+  span { color: var(--text-muted); }
+
+  strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+}
+
+// Action Buttons
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 200px;
+}
+
+.action-btn {
+  padding: 0.55rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: rgba(255 255 255 / 0.05);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  text-align: left;
+
+  &:hover:not([disabled]):not([aria-disabled='true']) {
+    background: rgba(255 255 255 / 0.1);
+    border-color: rgba(255 255 255 / 0.3);
+    transform: translateX(2px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  &[disabled],
+  &[aria-disabled='true'] {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &--positive {
+    border-color: rgba(0 230 118 / 0.3);
+    color: var(--success);
+
+    &:hover:not([disabled]) {
+      background: rgba(0 230 118 / 0.1);
+      border-color: rgba(0 230 118 / 0.5);
+    }
+  }
+
+  &--negative {
+    border-color: rgba(255 23 68 / 0.3);
+    color: var(--danger);
+
+    &:hover:not([disabled]) {
+      background: rgba(255 23 68 / 0.1);
+      border-color: rgba(255 23 68 / 0.5);
+    }
+  }
+}

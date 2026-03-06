@@ -1,0 +1,146 @@
+@let p = player();
+
+@if (p) {
+  <div class="overview">
+    <!-- Key stat cards -->
+    <section class="stat-grid" aria-label="Key national statistics">
+      <div class="stat-card stat-card--gdp">
+        <span class="stat-label">GDP</span>
+        <span class="stat-value">{{ formatGdp(p.gdp) }}</span>
+        <span class="stat-sub" [style.color]="growthColor(p.gdpGrowthRate)">
+          {{ p.gdpGrowthRate >= 0 ? '+' : '' }}{{ p.gdpGrowthRate }}% annual
+        </span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Population</span>
+        <span class="stat-value">{{ formatPop(p.population) }}</span>
+        <span class="stat-sub">{{ p.populationGrowthRate }}% growth</span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">GDP per Capita</span>
+        <span class="stat-value">${{ p.gdpPerCapita.toLocaleString() }}</span>
+        <span class="stat-sub">{{ p.urbanizationRate.toFixed(0) }}% urban</span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">World Rank</span>
+        <span class="stat-value rank-value">#{{ rank() }}</span>
+        <span class="stat-sub">of {{ totalCountries() }} nations</span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Trade Balance</span>
+        <span class="stat-value" [style.color]="tradeBalance() >= 0 ? 'var(--success)' : 'var(--danger)'">
+          {{ tradeBalance() >= 0 ? '+' : '' }}{{ formatGdp(absValue(tradeBalance())) }}
+        </span>
+        <span class="stat-sub">Exp: {{ formatGdp(p.exports) }} | Imp: {{ formatGdp(p.imports) }}</span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Inflation</span>
+        <span class="stat-value" [style.color]="growthColor(6 - p.inflation)">
+          {{ p.inflation.toFixed(1) }}%
+        </span>
+        <span class="stat-sub">Debt: {{ p.nationalDebt.toFixed(1) }}% of GDP</span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Unemployment</span>
+        <span class="stat-value" [style.color]="scoreColor(100 - p.unemploymentRate * 4)">
+          {{ p.unemploymentRate.toFixed(1) }}%
+        </span>
+        <span class="stat-sub">Skill: {{ p.workforceSkillLevel.toFixed(0) }}/100</span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Happiness</span>
+        <span class="stat-value" [style.color]="scoreColor(p.happinessIndex)">
+          {{ p.happinessIndex.toFixed(0) }}/100
+        </span>
+        <span class="stat-sub">HDI: {{ p.hdi.toFixed(3) }}</span>
+      </div>
+    </section>
+
+    <!-- GDP History Chart -->
+    <section class="chart-section" aria-label="GDP history">
+      <h3 class="section-title">GDP History (last 8 quarters)</h3>
+      <div class="bar-chart" role="img" [attr.aria-label]="'GDP history chart showing values from ' + formatGdp(gdpHistoryBars()[0]?.value ?? 0) + ' to ' + formatGdp(p.gdp)">
+        @for (bar of gdpHistoryBars(); track $index) {
+          <div class="bar-wrapper">
+            <div class="bar" [style.height.%]="bar.height" [attr.title]="formatGdp(bar.value)"></div>
+            <span class="bar-label">{{ bar.label }}</span>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Social Indicators -->
+    <section class="indicators-section" aria-label="Social indicators">
+      <h3 class="section-title">National Indicators</h3>
+      <div class="indicators-grid">
+        @for (item of [
+          { label: 'Healthcare', value: p.healthcareIndex, icon: '🏥' },
+          { label: 'Education', value: p.educationIndex, icon: '📚' },
+          { label: 'Infrastructure', value: p.infrastructureIndex, icon: '🏗️' },
+          { label: 'Business Climate', value: p.businessClimate, icon: '💼' },
+          { label: 'Political Stability', value: p.politicalStability, icon: '🏛️' },
+          { label: 'Military Strength', value: p.militaryStrength, icon: '⚔️' },
+          { label: 'Social Support', value: p.socialSupportIndex, icon: '🤝' },
+          { label: 'Anti-Corruption', value: p.corruptionIndex, icon: '⚖️' },
+          { label: 'Environmental', value: p.environmentalScore, icon: '🌿' },
+          { label: 'Press Freedom', value: p.pressFreedom, icon: '📰' }
+        ]; track item.label) {
+          <div class="indicator">
+            <div class="indicator-header">
+              <span aria-hidden="true">{{ item.icon }}</span>
+              <span class="indicator-label">{{ item.label }}</span>
+              <span class="indicator-value" [style.color]="scoreColor(item.value)">{{ item.value.toFixed(0) }}</span>
+            </div>
+            <div class="progress-bar" role="progressbar" [attr.aria-valuenow]="item.value" aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="item.label + ' ' + item.value.toFixed(0) + ' out of 100'">
+              <div class="progress-fill" [style.width.%]="item.value" [style.background]="scoreColor(item.value)"></div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Top 5 World Rankings -->
+    <section class="rankings-section" aria-label="Top world rankings">
+      <h3 class="section-title">World Rankings (Top 5)</h3>
+      <ol class="rankings-list" aria-label="World GDP rankings">
+        @for (country of ranked(); track country.id; let i = $index) {
+          <li class="ranking-item" [class.ranking-item--player]="country.isPlayer">
+            <span class="rank-num">#{{ i + 1 }}</span>
+            <span class="country-badge" [style.background-color]="country.color">{{ country.code }}</span>
+            <span class="country-name">{{ country.name }}</span>
+            <span class="country-gdp">{{ formatGdp(country.gdp) }}</span>
+            <span class="gdp-growth" [style.color]="growthColor(country.gdpGrowthRate)">
+              {{ country.gdpGrowthRate >= 0 ? '+' : '' }}{{ country.gdpGrowthRate }}%
+            </span>
+          </li>
+        }
+      </ol>
+    </section>
+
+    <!-- Recent Events -->
+    @if (events().length) {
+      <section class="events-section" aria-label="Recent events">
+        <h3 class="section-title">Recent Events</h3>
+        <div class="events-list">
+          @for (event of events(); track event.id) {
+            <div class="event-card" [class]="'event-card--' + event.severity" role="article">
+              <span class="event-severity-dot" [attr.aria-label]="event.severity + ' event'"></span>
+              <div class="event-content">
+                <strong class="event-title">{{ event.title }}</strong>
+                <p class="event-desc">{{ event.description }}</p>
+              </div>
+              <span class="event-type-badge">{{ event.type }}</span>
+            </div>
+          }
+        </div>
+      </section>
+    }
+  </div>
+}
