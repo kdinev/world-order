@@ -147,7 +147,7 @@
   color: var(--warning);
 }
 
-.next-turn-btn {
+.clock-btn {
   padding: 0.55rem 1.3rem;
   background: linear-gradient(135deg, var(--primary), #0099cc);
   color: #000;
@@ -158,11 +158,15 @@
   letter-spacing: 0.04em;
   cursor: pointer;
   white-space: nowrap;
-  transition: opacity 0.2s, transform 0.1s;
+  transition: opacity 0.2s, transform 0.1s, background 0.2s;
   display: flex;
   align-items: center;
   gap: 0.4rem;
   margin-left: auto;
+
+  &.paused {
+    background: linear-gradient(135deg, var(--success), #00a855);
+  }
 
   &:hover:not([disabled]) {
     opacity: 0.85;
@@ -175,22 +179,6 @@
   }
 
   &:active:not([disabled]) { transform: scale(0.96); }
-
-  &[disabled],
-  &.advancing {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-  }
-}
-
-.spin {
-  display: inline-block;
-  animation: spin 0.7s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
 
 // ─── Event Banner ─────────────────────────────────────────────────────────────
@@ -242,6 +230,29 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+// ─── Tabs overrides ──────────────────────────────────────────────────────────
+
+// Use small size to reduce tab height
+.dashboard-tabs {
+  --ig-size: 1;
+}
+
+.tab-item-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+
+  // The emoji icon
+  span:first-child {
+    font-size: 0.9rem;
+    line-height: 1;
+  }
 }
 
 // ─── Tab Navigation ──────────────────────────────────────────────────────────

@@ -1,7 +1,8 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
+import { Injectable, signal, computed, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import type { Country, CountryPreset, GameState, Budgets, Policies, Relation, GameEvent } from '../models/game.model';
 import { WORLD_COUNTRIES } from '../data/world-countries.data';
-import { PLAYER_PRESETS } from '../data/player-presets.data';
+import { PLAYER_PRESETS, type PresetTemplate } from '../data/player-presets.data';
 import { EVENT_TEMPLATES } from '../data/events.data';
 import { TurnEngineService } from './turn-engine.service';
 
@@ -26,12 +27,17 @@ const START_YEAR = 2026;
 @Injectable({ providedIn: 'root' })
 export class GameService {
   private readonly engine = inject(TurnEngineService);
+  private readonly platformId = inject(PLATFORM_ID);
+  private _timerHandle: ReturnType<typeof setInterval> | null = null;
+  private readonly _isPaused = signal(true);
+  readonly isPaused = this._isPaused.asReadonly();
 
   private readonly _state = signal<GameState>({
     started: false,
     turn: 0,
     year: START_YEAR,
     quarter: 1,
+    day: 1,
     playerCountryId: '',
     countries: [],
     recentEvents: [],
@@ -43,6 +49,7 @@ export class GameService {
   readonly turn = computed(() => this._state().turn);
   readonly year = computed(() => this._state().year);
   readonly quarter = computed(() => this._state().quarter);
+  readonly day = computed(() => this._state().day);
   readonly recentEvents = computed(() => this._state().recentEvents);
 
   readonly playerCountry = computed(() => {
@@ -65,8 +72,8 @@ export class GameService {
 
   // ─── Game Lifecycle ────────────────────────────────────────────────────────
 
-  startGame(playerName: string, code: string, color: string, preset: CountryPreset): void {
-    const presetData = PLAYER_PRESETS[preset];
+  startGame(playerName: string, code: string, color: string, preset: CountryPreset, customStats?: PresetTemplate): void {
+    const presetData = (preset === 'custom' && customStats) ? customStats : PLAYER_PRESETS[preset];
     const playerId = 'player';
 
     // Build full country list (AI + player) without relations first
@@ -103,55 +110,81 @@ export class GameService {
       turn: 0,
       year: START_YEAR,
       quarter: 1,
+      day: 1,
       playerCountryId: playerId,
       countries: withRelations,
       recentEvents: [],
       allEvents: [],
     });
+    this.startRealTimeClock();
   }
 
-  // ─── Turn Processing ───────────────────────────────────────────────────────
+  // ─── Real-Time Clock ───────────────────────────────────────────────────────
 
-  advanceTurn(): void {
+  /** Advances the game by one day (= one real-world hour). Every 90 days a full quarterly simulation runs. */
+  advanceDay(): void {
     this._state.update(s => {
-      const newTurn = s.turn + 1;
-      const newQuarter = ((s.quarter) % 4) + 1;
-      const newYear = newQuarter === 1 ? s.year + 1 : s.year;
-
-      // Process each country through the turn engine
-      const newEvents: GameEvent[] = [];
-      const updatedCountries = s.countries.map(c => {
-        // Pick random events for this country
-        const events = this.engine.pickEvents(c, EVENT_TEMPLATES, newTurn);
-        newEvents.push(...events);
-
-        // Apply event effects, then run the regular turn simulation
-        const afterEvents = this.engine.applyEventEffects(c, events, EVENT_TEMPLATES);
-        return this.engine.processCountry(afterEvents, newTurn);
-      });
-
-      // Relations: drift toward neutral very slowly if no player interaction
-      const playerRelDrift = updatedCountries.map(c => {
-        if (!c.isPlayer) return c;
-        const driftedRelations = c.relations.map(r => ({
-          ...r,
-          score: r.score * 0.98, // very slow drift to 0
-        }));
-        return { ...c, relations: driftedRelations };
-      });
-
-      const playerEvents = newEvents.filter(e => e.countryId === s.playerCountryId);
-
-      return {
-        ...s,
-        turn: newTurn,
-        quarter: newQuarter,
-        year: newYear,
-        countries: playerRelDrift,
-        recentEvents: playerEvents,
-        allEvents: [...s.allEvents, ...playerEvents],
-      };
+      const newDay = s.day + 1;
+      if (newDay <= 90) {
+        return { ...s, day: newDay };
+      }
+      // Quarter complete — run full economic simulation
+      return this.runQuarterlyTick({ ...s, day: 1 });
     });
+  }
+
+  pause(): void {
+    this._isPaused.set(true);
+    if (this._timerHandle !== null) {
+      clearInterval(this._timerHandle);
+      this._timerHandle = null;
+    }
+  }
+
+  resume(): void {
+    if (this._timerHandle !== null) return;
+    this._isPaused.set(false);
+    if (!isPlatformBrowser(this.platformId)) return;
+    this._timerHandle = setInterval(() => this.advanceDay(), 3_600_000);
+  }
+
+  private startRealTimeClock(): void {
+    if (this._timerHandle !== null) clearInterval(this._timerHandle);
+    this._isPaused.set(false);
+    if (!isPlatformBrowser(this.platformId)) return;
+    this._timerHandle = setInterval(() => this.advanceDay(), 3_600_000);
+  }
+
+  /** Runs the quarterly economic & event simulation — called automatically every 90 days. */
+  private runQuarterlyTick(s: GameState): GameState {
+    const newTurn = s.turn + 1;
+    const newQuarter = (s.quarter % 4) + 1;
+    const newYear = newQuarter === 1 ? s.year + 1 : s.year;
+
+    const newEvents: GameEvent[] = [];
+    const updatedCountries = s.countries.map(c => {
+      const events = this.engine.pickEvents(c, EVENT_TEMPLATES, newTurn);
+      newEvents.push(...events);
+      const afterEvents = this.engine.applyEventEffects(c, events, EVENT_TEMPLATES);
+      return this.engine.processCountry(afterEvents, newTurn);
+    });
+
+    // Relations drift toward neutral very slowly when no player action
+    const playerRelDrift = updatedCountries.map(c => {
+      if (!c.isPlayer) return c;
+      return { ...c, relations: c.relations.map(r => ({ ...r, score: r.score * 0.98 })) };
+    });
+
+    const playerEvents = newEvents.filter(e => e.countryId === s.playerCountryId);
+    return {
+      ...s,
+      turn: newTurn,
+      quarter: newQuarter,
+      year: newYear,
+      countries: playerRelDrift,
+      recentEvents: playerEvents,
+      allEvents: [...s.allEvents, ...playerEvents],
+    };
   }
 
   // ─── Player Budget & Policy Actions ───────────────────────────────────────

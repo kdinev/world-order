@@ -1,11 +1,15 @@
 import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { TitleCasePipe } from '@angular/common';
 import { GameService } from '../../../services/game.service';
+import { IgxLinearProgressBarComponent } from 'igniteui-angular';
 
 @Component({
   selector: 'app-economy-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TitleCasePipe],
+  imports: [
+    TitleCasePipe,
+    IgxLinearProgressBarComponent,
+  ],
   templateUrl: './economy-panel.html',
   styleUrl: './economy-panel.scss',
 })
@@ -81,5 +85,11 @@ export class EconomyPanelComponent {
 
   absValue(v: number): number {
     return Math.abs(v);
+  }
+
+  progressType(value: number): 'success' | 'warning' | 'danger' | 'default' {
+    if (value >= 66) return 'success';
+    if (value >= 33) return 'warning';
+    return 'danger';
   }
 }

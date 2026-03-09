@@ -5,75 +5,99 @@
     <!-- World Rankings Table -->
     <section class="rankings-section" aria-label="World GDP rankings">
       <h3 class="section-title">World Rankings by GDP</h3>
-      <table class="rankings-table" aria-label="Country GDP rankings">
-        <thead>
-          <tr>
-            <th scope="col">Rank</th>
-            <th scope="col">Country</th>
-            <th scope="col">GDP</th>
-            <th scope="col">GDP/Capita</th>
-            <th scope="col">Population</th>
-            <th scope="col">Growth</th>
-            <th scope="col" class="col-actions">Relations / Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (country of ranked(); track country.id; let i = $index) {
-            <tr
-              [class.row--player]="country.isPlayer"
-              [class.row--selected]="selectedCountryId() === country.id"
-              (click)="country.isPlayer ? null : selectCountry(country.id)"
-              [attr.aria-selected]="selectedCountryId() === country.id"
-              [attr.tabindex]="country.isPlayer ? null : 0"
-              (keydown.enter)="country.isPlayer ? null : selectCountry(country.id)"
-              [attr.role]="country.isPlayer ? null : 'button'"
-            >
-              <td class="col-rank">
-                @if (i < 3) {
-                  <span class="medal" [class]="'medal--' + (i + 1)" aria-hidden="true">
-                    {{ i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉' }}
-                  </span>
-                } @else {
-                  <span class="rank-num">#{{ i + 1 }}</span>
+      <igx-grid
+        #rankingsGrid
+        [data]="rankingRows()"
+        [primaryKey]="'id'"
+        [autoGenerate]="false"
+        [rowSelection]="'single'"
+        [hideRowSelectors]="true"
+        [allowFiltering]="false"
+        [rowClasses]="rowClassesConfig"
+        height="800px"
+        width="100%"
+        (rowSelectionChanging)="onRowSelectionChange($event)"
+        aria-label="World GDP rankings"
+      >
+        <!-- Rank -->
+        <igx-column field="rankIndex" header="Rank" dataType="number" [sortable]="false" width="90px">
+          <ng-template igxCell let-cell="cell">
+            @if (cell.value < 3) {
+              <span class="medal" [class]="'medal--' + (cell.value + 1)" aria-hidden="true">
+                {{ cell.value === 0 ? '🥇' : cell.value === 1 ? '🥈' : '🥉' }}
+              </span>
+            } @else {
+              <span class="rank-num">#{{ cell.value + 1 }}</span>
+            }
+          </ng-template>
+        </igx-column>
+
+        <!-- Country -->
+        <igx-column field="name" header="Country" dataType="string" [sortable]="true" minWidth="180px">
+          <ng-template igxCell let-cell="cell">
+            <div class="col-country">
+              <span class="country-badge" [style.background-color]="cell.row.data.color" aria-hidden="true">{{ cell.row.data.code }}</span>
+              <span class="country-name">{{ cell.value }}</span>
+              @if (cell.row.data.isPlayer) {
+                <span class="you-badge" aria-label="Your country">YOU</span>
+              }
+            </div>
+          </ng-template>
+        </igx-column>
+
+        <!-- GDP -->
+        <igx-column field="gdp" header="GDP" dataType="number" [sortable]="true" width="140px">
+          <ng-template igxCell let-cell="cell">
+            <span class="col-gdp">{{ cell.row.data.gdpFormatted }}</span>
+          </ng-template>
+        </igx-column>
+
+        <!-- GDP/Capita -->
+        <igx-column field="gdpPerCapita" header="GDP/Capita" dataType="number" [sortable]="true" width="140px">
+          <ng-template igxCell let-cell="cell">
+            <span class="col-gdpcap">${{ cell.value.toLocaleString() }}</span>
+          </ng-template>
+        </igx-column>
+
+        <!-- Population -->
+        <igx-column field="population" header="Population" dataType="number" [sortable]="true" width="140px">
+          <ng-template igxCell let-cell="cell">
+            <span class="col-pop">{{ cell.row.data.populationFormatted }}</span>
+          </ng-template>
+        </igx-column>
+
+        <!-- Growth -->
+        <igx-column field="gdpGrowthRate" header="Growth" dataType="number" [sortable]="true" width="130px">
+          <ng-template igxCell let-cell="cell">
+            <span [style.color]="cell.value >= 0 ? 'var(--success)' : 'var(--danger)'">
+              {{ cell.value >= 0 ? '+' : '' }}{{ cell.value.toFixed(1) }}%
+            </span>
+          </ng-template>
+        </igx-column>
+
+        <!-- Relations -->
+        <igx-column field="stance" header="Relations" [sortable]="false" minWidth="150px">
+          <ng-template igxCell let-cell="cell">
+            @if (!cell.row.data.isPlayer && cell.value) {
+              <div class="col-actions">
+                <igx-chip [variant]="cell.row.data.stanceVariant" class="stance-chip" [attr.aria-label]="'Stance: ' + cell.value">
+                  <span aria-hidden="true">{{ cell.row.data.stanceIcon }}</span>
+                  {{ cell.value }}
+                </igx-chip>
+                @if (cell.row.data.tradeAgreement) {
+                  <igx-chip variant="success" class="tag--trade" title="Trade agreement active">📦 Trade</igx-chip>
                 }
-              </td>
-              <td class="col-country">
-                <span class="country-badge" [style.background-color]="country.color" aria-hidden="true">{{ country.code }}</span>
-                <span class="country-name">{{ country.name }}</span>
-                @if (country.isPlayer) {
-                  <span class="you-badge" aria-label="Your country">YOU</span>
+                @if (cell.row.data.defenseAlliance) {
+                  <igx-chip variant="primary" class="tag--alliance" title="Defense alliance active">🛡️ Alliance</igx-chip>
                 }
-              </td>
-              <td class="col-gdp">{{ formatGdp(country.gdp) }}</td>
-              <td class="col-gdpcap">${{ country.gdpPerCapita.toLocaleString() }}</td>
-              <td class="col-pop">{{ formatPop(country.population) }}</td>
-              <td class="col-growth" [style.color]="country.gdpGrowthRate >= 0 ? 'var(--success)' : 'var(--danger)'">
-                {{ country.gdpGrowthRate >= 0 ? '+' : '' }}{{ country.gdpGrowthRate.toFixed(1) }}%
-              </td>
-              <td class="col-actions">
-                @if (!country.isPlayer) {
-                  @let rel = p.relations.find(r => r.countryId === country.id);
-                  @if (rel) {
-                    <span class="stance-badge" [style.color]="stanceColor(rel.stance)" [attr.aria-label]="'Diplomatic stance: ' + rel.stance">
-                      <span aria-hidden="true">{{ stanceIcon(rel.stance) }}</span>
-                      {{ rel.stance }}
-                    </span>
-                    @if (rel.tradeAgreement) {
-                      <span class="tag tag--trade" title="Trade agreement active">📦 Trade</span>
-                    }
-                    @if (rel.defenseAlliance) {
-                      <span class="tag tag--alliance" title="Defense alliance active">🛡️ Alliance</span>
-                    }
-                    @if (rel.sanctionsActive) {
-                      <span class="tag tag--sanction" title="Sanctions active">🚫 Sanctions</span>
-                    }
-                  }
+                @if (cell.row.data.sanctionsActive) {
+                  <igx-chip variant="danger" class="tag--sanction" title="Sanctions active">🚫 Sanctions</igx-chip>
                 }
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+              </div>
+            }
+          </ng-template>
+        </igx-column>
+      </igx-grid>
     </section>
 
     <!-- Diplomatic Actions (shown when a country is selected) -->
@@ -81,32 +105,46 @@
       @let target = selectedCountry();
       @if (target) {
         <section class="diplomacy-section" aria-label="Diplomatic actions">
-          <h3 class="section-title">
-            Diplomacy with
-            <span class="country-badge" [style.background-color]="target.color" aria-hidden="true">{{ target.code }}</span>
-            {{ target.name }}
-          </h3>
+          <div class="diplomacy-header">
+            <h3 class="section-title">
+              Diplomacy with
+              <span class="country-badge" [style.background-color]="target.color" aria-hidden="true">{{ target.code }}</span>
+              {{ target.name }}
+            </h3>
+            <button
+              igxButton="flat"
+              igxRipple
+              type="button"
+              class="deselect-btn"
+              (click)="deselectAll()"
+              aria-label="Close diplomacy panel"
+            >✕</button>
+          </div>
 
           <div class="diplomacy-layout">
             <!-- Relation Score -->
             <div class="relation-score-card">
-              <span class="rel-label">Relation Score</span>
+              <div class="relation-score-header">
+                <span class="rel-label">Relation Score</span>
+                <span class="rel-stance" [style.color]="stanceColor(rel.stance)">
+                  {{ stanceIcon(rel.stance) }} {{ rel.stance | titlecase }}
+                </span>
+              </div>
               <span class="rel-score" [style.color]="stanceColor(rel.stance)">{{ rel.score.toFixed(0) }}</span>
               <div class="rel-bar-track" role="progressbar" [attr.aria-valuenow]="rel.score" aria-valuemin="-100" aria-valuemax="100" [attr.aria-label]="'Relation score ' + rel.score.toFixed(0)">
                 <div class="rel-bar-fill" [style.width.%]="scoreBar(rel.score)" [style.background]="stanceColor(rel.stance)"></div>
               </div>
-              <span class="rel-stance" [style.color]="stanceColor(rel.stance)">
-                {{ stanceIcon(rel.stance) }} {{ rel.stance | titlecase }}
-              </span>
-              @if (rel.tradeAgreement) {
-                <span class="rel-tag">📦 Trade Agreement Active</span>
-              }
-              @if (rel.defenseAlliance) {
-                <span class="rel-tag">🛡️ Defense Alliance Active</span>
-              }
-              @if (rel.sanctionsActive) {
-                <span class="rel-tag danger">🚫 Sanctions Active</span>
-              }
+              <div class="rel-tags">
+                @if (rel.tradeAgreement) {
+                  <igx-chip class="rel-tag">📦 Trade Agreement Active</igx-chip>
+                }
+                @if (rel.defenseAlliance) {
+                  <igx-chip class="rel-tag">🛡️ Defense Alliance Active</igx-chip>
+                }
+                @if (rel.sanctionsActive) {
+                  <igx-chip class="rel-tag danger">🚫 Sanctions Active</igx-chip>
+                }
+              </div>
             </div>
 
             <!-- Country Info -->
@@ -122,9 +160,11 @@
             <!-- Action Buttons -->
             <div class="action-buttons" role="group" [attr.aria-label]="'Diplomatic actions with ' + target.name">
               <button
-                class="action-btn action-btn--positive"
+                igxButton="outlined"
+                igxRipple
                 type="button"
                 (click)="improveRelations()"
+                class="action-btn action-btn--positive"
                 title="Spend diplomatic capital to improve the relationship"
                 aria-label="Improve relations — costs diplomatic capital"
               >
@@ -132,9 +172,11 @@
               </button>
 
               <button
-                class="action-btn action-btn--positive"
+                igxButton="outlined"
+                igxRipple
                 type="button"
                 (click)="sendAid()"
+                class="action-btn action-btn--positive"
                 title="Send $1B in foreign aid, +2 relation score"
                 aria-label="Send 1 billion in foreign aid"
               >
@@ -143,21 +185,28 @@
 
               @if (!rel.tradeAgreement) {
                 <button
-                  class="action-btn"
+                  igxButton="outlined"
+                  igxRipple
                   type="button"
                   (click)="signTrade()"
-                  [attr.disabled]="rel.score < 20 ? '' : null"
+                  [disabled]="rel.score < 20"
                   [attr.aria-disabled]="rel.score < 20"
-                  [attr.title]="rel.score < 20 ? 'Requires friendly relations (score ≥ 20)' : 'Sign a free trade agreement'"
+                  class="action-btn"
+                  [igxTooltipTarget]="tradeTip"
                   aria-label="Sign trade agreement — requires score of at least 20"
                 >
                   📦 Sign Trade Agreement
                 </button>
+                <div #tradeTip="tooltip" igxTooltip>
+                  {{ rel.score < 20 ? 'Requires friendly relations (score ≥ 20)' : 'Sign a free trade agreement' }}
+                </div>
               } @else {
                 <button
-                  class="action-btn action-btn--negative"
+                  igxButton="outlined"
+                  igxRipple
                   type="button"
                   (click)="terminateTrade()"
+                  class="action-btn action-btn--negative"
                   title="Terminate the trade agreement (-10 score)"
                   aria-label="Terminate trade agreement"
                 >
@@ -167,23 +216,30 @@
 
               @if (!rel.defenseAlliance) {
                 <button
-                  class="action-btn"
+                  igxButton="outlined"
+                  igxRipple
                   type="button"
                   (click)="signAlliance()"
-                  [attr.disabled]="rel.score < 50 ? '' : null"
+                  [disabled]="rel.score < 50"
                   [attr.aria-disabled]="rel.score < 50"
-                  [attr.title]="rel.score < 50 ? 'Requires allied relations (score ≥ 50)' : 'Form a mutual defense alliance'"
+                  class="action-btn"
+                  [igxTooltipTarget]="allianceTip"
                   aria-label="Sign defense alliance — requires score of at least 50"
                 >
                   🛡️ Sign Defense Alliance
                 </button>
+                <div #allianceTip="tooltip" igxTooltip>
+                  {{ rel.score < 50 ? 'Requires allied relations (score ≥ 50)' : 'Form a mutual defense alliance' }}
+                </div>
               }
 
               @if (!rel.sanctionsActive) {
                 <button
-                  class="action-btn action-btn--negative"
+                  igxButton="outlined"
+                  igxRipple
                   type="button"
                   (click)="imposeSanctions()"
+                  class="action-btn action-btn--negative"
                   title="Impose economic sanctions (-20 score, damages their economy)"
                   aria-label="Impose economic sanctions"
                 >
@@ -191,9 +247,11 @@
                 </button>
               } @else {
                 <button
-                  class="action-btn action-btn--positive"
+                  igxButton="outlined"
+                  igxRipple
                   type="button"
                   (click)="liftSanctions()"
+                  class="action-btn action-btn--positive"
                   title="Lift the current sanctions (+5 score)"
                   aria-label="Lift sanctions"
                 >

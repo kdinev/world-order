@@ -28,26 +28,25 @@
         <span class="rank-value">#{{ rank() }}<span class="rank-total"> / {{ totalCountries() }}</span></span>
       </div>
 
-      <div class="header-time" aria-label="Current game year and quarter">
-        <span class="time-label">Year {{ year() }}</span>
-        <span class="time-quarter">Q{{ quarter() }}</span>
+      <div class="header-time" aria-label="Current game date">
+        <span class="time-label">{{ year() }} · Q{{ quarter() }}</span>
+        <span class="time-quarter">Day {{ day() }}</span>
       </div>
 
       <button
-        class="next-turn-btn"
-        [class.advancing]="advancing()"
+        igxButton="contained"
+        igxRipple
+        class="clock-btn"
+        [class.paused]="isPaused()"
         type="button"
-        (click)="advanceTurn()"
-        [attr.disabled]="advancing() ? '' : null"
-        [attr.aria-disabled]="advancing()"
-        aria-label="Advance to next quarter"
-        title="Simulate the next quarter (3 months)"
+        (click)="togglePause()"
+        [attr.aria-label]="isPaused() ? 'Resume game' : 'Pause game'"
+        [title]="isPaused() ? 'Game paused — click to resume (1 hour = 1 day)' : 'Game running — click to pause'"
       >
-        @if (advancing()) {
-          <span class="spin" aria-hidden="true">⟳</span>
-          Processing…
+        @if (isPaused()) {
+          ▶ Resume
         } @else {
-          ▶ Next Turn
+          ⏸ Pause
         }
       </button>
     </header>
@@ -72,53 +71,26 @@
     }
 
     <!-- ─── Tab Navigation ────────────────────────────────────────────────── -->
-    <nav class="tab-nav" aria-label="Dashboard sections" role="tablist">
-      @for (tab of tabs; track tab.id) {
-        <button
-          role="tab"
-          [class.active]="activeTab() === tab.id"
-          [attr.aria-selected]="activeTab() === tab.id"
-          [attr.tabindex]="activeTab() === tab.id ? 0 : -1"
-          [attr.aria-controls]="tab.id + '-panel'"
-          type="button"
-          (click)="setTab(tab.id)"
-          class="tab-btn"
-        >
-          <span class="tab-icon" aria-hidden="true">{{ tab.icon }}</span>
-          <span class="tab-label">{{ tab.label }}</span>
-        </button>
+    <igx-tabs [selectedIndex]="activeTabIndex()" (selectedIndexChange)="activeTabIndex.set($event)">
+      @for (tab of tabs; track tab.id; let i = $index) {
+        <igx-tab-item>
+          <igx-tab-header class="dashboard-tabs">
+            <span class="tab-item-header">
+              <span aria-hidden="true">{{ tab.icon }}</span>
+              <span>{{ tab.label }}</span>
+            </span>
+          </igx-tab-header>
+          <igx-tab-content>
+            @switch (tab.id) {
+              @case ('overview') { <app-overview-panel /> }
+              @case ('population') { <app-population-panel /> }
+              @case ('economy') { <app-economy-panel /> }
+              @case ('geopolitics') { <app-geopolitics-panel /> }
+              @case ('policies') { <app-policies-panel /> }
+            }
+          </igx-tab-content>
+        </igx-tab-item>
       }
-    </nav>
-
-    <!-- ─── Panel Content ─────────────────────────────────────────────────── -->
-    <main class="dashboard-content" role="main">
-      @switch (activeTab()) {
-        @case ('overview') {
-          <div id="overview-panel" role="tabpanel" aria-label="Overview panel">
-            <app-overview-panel />
-          </div>
-        }
-        @case ('population') {
-          <div id="population-panel" role="tabpanel" aria-label="Population panel">
-            <app-population-panel />
-          </div>
-        }
-        @case ('economy') {
-          <div id="economy-panel" role="tabpanel" aria-label="Economy panel">
-            <app-economy-panel />
-          </div>
-        }
-        @case ('geopolitics') {
-          <div id="geopolitics-panel" role="tabpanel" aria-label="Geopolitics panel">
-            <app-geopolitics-panel />
-          </div>
-        }
-        @case ('policies') {
-          <div id="policies-panel" role="tabpanel" aria-label="Policies panel">
-            <app-policies-panel />
-          </div>
-        }
-      }
-    </main>
+    </igx-tabs>
   </div>
 }

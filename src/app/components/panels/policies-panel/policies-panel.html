@@ -4,9 +4,11 @@
   <div class="policies">
 
     <!-- Budget Allocation -->
-    <section class="panel-card" aria-label="Budget allocation">
-      <h3 class="section-title">💰 Budget Allocation</h3>
-      <p class="section-desc">Distribute 100% of government revenue across spending categories. Must sum to exactly 100%.</p>
+    <div class="panel-card" aria-label="Budget allocation">
+      <div class="panel-card-header">
+        <h3 class="panel-card-title">💰 Budget Allocation</h3>
+        <p class="panel-card-subtitle">Distribute 100% of government revenue across spending categories. Must sum to exactly 100%.</p>
+      </div>
 
       <form [formGroup]="budgetForm" (ngSubmit)="applyPolicies()" aria-label="Budget allocation form">
         <div class="budget-grid">
@@ -19,19 +21,13 @@
               </div>
               <p class="budget-desc">{{ budgetDescriptions[key] }}</p>
               <div class="slider-wrapper">
-                <input
-                  type="range"
-                  [id]="'budget-' + key"
+                <igx-slider
                   [formControlName]="key"
-                  min="0"
-                  max="100"
-                  step="1"
-                  class="slider"
+                  [minValue]="0"
+                  [maxValue]="100"
+                  [step]="1"
                   [attr.aria-label]="(key === 'socialPrograms' ? 'Social Programs' : key) + ' budget percentage'"
-                  [attr.aria-valuenow]="budgetForm.get(key)?.value ?? 0"
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                />
+                ></igx-slider>
               </div>
             </div>
           }
@@ -72,29 +68,31 @@
         <!-- Form Actions -->
         <div class="form-actions">
           <button
+            igxButton="outlined"
+            igxRipple
             type="button"
-            class="btn btn--secondary"
             (click)="distribute()"
             aria-label="Evenly distribute budget allocation"
           >
             ⚖️ Distribute Evenly
           </button>
           <button
-            type="submit"
-            class="btn btn--primary"
-            [attr.disabled]="!budgetValid ? '' : null"
+            igxButton="contained"
+            [disabled]="!budgetValid"
             [attr.aria-disabled]="!budgetValid"
-            [attr.title]="!budgetValid ? 'Budget must sum to exactly 100%' : 'Apply budget changes'"
+            [title]="!budgetValid ? 'Budget must sum to exactly 100%' : 'Apply budget changes'"
           >
             ✓ Apply Policies
           </button>
         </div>
       </form>
-    </section>
+    </div>
 
     <!-- Fiscal Policies -->
-    <section class="panel-card" aria-label="Fiscal and trade policies">
-      <h3 class="section-title">📋 Fiscal &amp; Trade Policies</h3>
+    <div class="panel-card" aria-label="Fiscal and trade policies">
+      <div class="panel-card-header">
+        <h3 class="panel-card-title">📋 Fiscal &amp; Trade Policies</h3>
+      </div>
 
       <form [formGroup]="policyForm" aria-label="Policy settings form">
         <!-- Tax Rate -->
@@ -112,19 +110,13 @@
               High taxes — more revenue but dampens business climate
             }
           </p>
-          <input
-            type="range"
-            id="taxRate"
+          <igx-slider
             formControlName="taxRate"
-            min="10"
-            max="50"
-            step="1"
-            class="slider"
+            [minValue]="10"
+            [maxValue]="50"
+            [step]="1"
             aria-label="Tax rate percentage"
-            [attr.aria-valuenow]="policyForm.get('taxRate')?.value"
-            aria-valuemin="10"
-            aria-valuemax="50"
-          />
+          ></igx-slider>
           <div class="range-labels" aria-hidden="true">
             <span>10% (Low)</span><span>30% (Mid)</span><span>50% (High)</span>
           </div>
@@ -134,77 +126,48 @@
         <div class="policy-row">
           <div class="policy-header">
             <span class="policy-label">🌐 Trade Policy</span>
-            <span class="policy-value">{{ policyForm.get('tradePolicy')?.value | titlecase }}</span>
           </div>
-          <div class="option-group" role="radiogroup" aria-label="Trade policy options">
+          <igx-buttongroup selectionMode="singleRequired"
+            (selected)="policyForm.get('tradePolicy')?.setValue(tradePolicies[$event.index])">
             @for (option of tradePolicies; track option) {
-              <label class="option-card" [class.selected]="policyForm.get('tradePolicy')?.value === option">
-                <input
-                  type="radio"
-                  formControlName="tradePolicy"
-                  [value]="option"
-                  class="sr-only"
-                  [attr.aria-label]="option + ' trade policy: ' + policyDescription('tradePolicy', option)"
-                />
-                <span class="option-name">{{ option | titlecase }}</span>
-                <span class="option-desc">{{ policyDescription('tradePolicy', option) }}</span>
-              </label>
+              <button igxButton [selected]="policyForm.get('tradePolicy')?.value === option">{{ option | titlecase }}</button>
             }
-          </div>
+          </igx-buttongroup>
+          <p class="option-desc">{{ policyDescription('tradePolicy', policyForm.get('tradePolicy')?.value ?? '') }}</p>
         </div>
 
         <!-- Immigration Policy -->
         <div class="policy-row">
           <div class="policy-header">
             <span class="policy-label">🛂 Immigration Policy</span>
-            <span class="policy-value">{{ policyForm.get('immigrationPolicy')?.value | titlecase }}</span>
           </div>
-          <div class="option-group" role="radiogroup" aria-label="Immigration policy options">
+          <igx-buttongroup selectionMode="singleRequired"
+            (selected)="policyForm.get('immigrationPolicy')?.setValue(immigrationPolicies[$event.index])">
             @for (option of immigrationPolicies; track option) {
-              <label class="option-card" [class.selected]="policyForm.get('immigrationPolicy')?.value === option">
-                <input
-                  type="radio"
-                  formControlName="immigrationPolicy"
-                  [value]="option"
-                  class="sr-only"
-                  [attr.aria-label]="option + ' immigration policy: ' + policyDescription('immigrationPolicy', option)"
-                />
-                <span class="option-name">{{ option | titlecase }}</span>
-                <span class="option-desc">{{ policyDescription('immigrationPolicy', option) }}</span>
-              </label>
+              <button igxButton [selected]="policyForm.get('immigrationPolicy')?.value === option">{{ option | titlecase }}</button>
             }
-          </div>
+          </igx-buttongroup>
+          <p class="option-desc">{{ policyDescription('immigrationPolicy', policyForm.get('immigrationPolicy')?.value ?? '') }}</p>
         </div>
 
         <!-- Environmental Policy -->
         <div class="policy-row">
           <div class="policy-header">
             <span class="policy-label">🌿 Environmental Policy</span>
-            <span class="policy-value">{{ policyForm.get('envPolicy')?.value | titlecase }}</span>
           </div>
-          <div class="option-group" role="radiogroup" aria-label="Environmental policy options">
+          <igx-buttongroup selectionMode="singleRequired"
+            (selected)="policyForm.get('envPolicy')?.setValue(envPolicies[$event.index])">
             @for (option of envPolicies; track option) {
-              <label class="option-card" [class.selected]="policyForm.get('envPolicy')?.value === option">
-                <input
-                  type="radio"
-                  formControlName="envPolicy"
-                  [value]="option"
-                  class="sr-only"
-                  [attr.aria-label]="option + ' environmental policy: ' + policyDescription('envPolicy', option)"
-                />
-                <span class="option-name">{{ option | titlecase }}</span>
-                <span class="option-desc">{{ policyDescription('envPolicy', option) }}</span>
-              </label>
+              <button igxButton [selected]="policyForm.get('envPolicy')?.value === option">{{ option | titlecase }}</button>
             }
-          </div>
+          </igx-buttongroup>
+          <p class="option-desc">{{ policyDescription('envPolicy', policyForm.get('envPolicy')?.value ?? '') }}</p>
         </div>
 
         <div class="form-actions">
           <button
-            type="button"
-            class="btn btn--primary"
-            (click)="applyPolicies()"
-            [attr.disabled]="!budgetValid ? '' : null"
+            igxButton="contained"
+            [disabled]="!budgetValid"
             [attr.aria-disabled]="!budgetValid"
             aria-label="Apply all policy changes"
           >
@@ -212,7 +175,7 @@
           </button>
         </div>
       </form>
-    </section>
+    </div>
 
   </div>
 }

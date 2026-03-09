@@ -1,9 +1,13 @@
 import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { GameService } from '../../../services/game.service';
+import { IgxLinearProgressBarComponent } from 'igniteui-angular';
 
 @Component({
   selector: 'app-population-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    IgxLinearProgressBarComponent,
+  ],
   templateUrl: './population-panel.html',
   styleUrl: './population-panel.scss',
 })
@@ -52,5 +56,12 @@ export class PopulationPanelComponent {
     if (v >= 70) return 'var(--success)';
     if (v >= 40) return 'var(--warning)';
     return 'var(--danger)';
+  }
+
+  progressType(value: number, invert = false): 'success' | 'warning' | 'danger' | 'default' {
+    const v = invert ? 100 - value : value;
+    if (v >= 66) return 'success';
+    if (v >= 33) return 'warning';
+    return 'danger';
   }
 }

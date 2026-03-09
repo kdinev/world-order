@@ -6,6 +6,8 @@ import { PopulationPanelComponent } from '../panels/population-panel/population-
 import { EconomyPanelComponent } from '../panels/economy-panel/economy-panel';
 import { GeopoliticsPanelComponent } from '../panels/geopolitics-panel/geopolitics-panel';
 import { PoliciesPanelComponent } from '../panels/policies-panel/policies-panel';
+import { IGX_TABS_DIRECTIVES } from 'igniteui-angular';
+import { IgxButtonDirective, IgxRippleDirective } from 'igniteui-angular';
 
 type Tab = 'overview' | 'population' | 'economy' | 'geopolitics' | 'policies';
 
@@ -24,6 +26,9 @@ interface TabDef {
     EconomyPanelComponent,
     GeopoliticsPanelComponent,
     PoliciesPanelComponent,
+    IGX_TABS_DIRECTIVES,
+    IgxButtonDirective,
+    IgxRippleDirective,
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
@@ -38,10 +43,12 @@ export class DashboardComponent {
   readonly turn = computed(() => this.game.turn());
   readonly year = computed(() => this.game.year());
   readonly quarter = computed(() => this.game.quarter());
+  readonly day = computed(() => this.game.day());
+  readonly isPaused = computed(() => this.game.isPaused());
   readonly recentEvents = computed(() => this.game.recentEvents());
 
-  readonly activeTab = signal<Tab>('overview');
-  readonly advancing = signal(false);
+  readonly activeTabIndex = signal<number>(0);
+  readonly activeTab = computed<Tab>(() => this.tabs[this.activeTabIndex()].id);
 
   readonly tabs: TabDef[] = [
     { id: 'overview', label: 'Overview', icon: '📊' },
@@ -52,15 +59,16 @@ export class DashboardComponent {
   ];
 
   setTab(tab: Tab): void {
-    this.activeTab.set(tab);
+    const index = this.tabs.findIndex(t => t.id === tab);
+    if (index >= 0) this.activeTabIndex.set(index);
   }
 
-  advanceTurn(): void {
-    if (this.advancing()) return;
-    this.advancing.set(true);
-    this.game.advanceTurn();
-    // Brief visual feedback before resetting
-    setTimeout(() => this.advancing.set(false), 600);
+  togglePause(): void {
+    if (this.isPaused()) {
+      this.game.resume();
+    } else {
+      this.game.pause();
+    }
   }
 
   formatGdp(v: number): string {

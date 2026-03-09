@@ -5,7 +5,15 @@
 .economy {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.75rem;
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  @media (max-width: 640px) {
+    padding: 1rem;
+    gap: 1.25rem;
+  }
 }
 
 .section-title {
@@ -21,7 +29,7 @@
 
 .stat-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 1rem;
 }
 

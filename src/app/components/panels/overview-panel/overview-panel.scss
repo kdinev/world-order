@@ -5,7 +5,15 @@
 .overview {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.75rem;
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  @media (max-width: 640px) {
+    padding: 1rem;
+    gap: 1.25rem;
+  }
 }
 
 // ─── Section Titles ───────────────────────────────────────────────────────────
@@ -23,49 +31,52 @@
 
 .stat-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 0.875rem;
 }
 
 .stat-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  padding: 1rem 1.2rem;
+  padding: 1.1rem 1.25rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.3rem;
+  transition: border-color 0.15s, background 0.15s;
 
-  &--gdp {
-    border-color: rgba(0, 212, 255, 0.3);
-    background: linear-gradient(135deg, rgba(0, 212, 255, 0.06), var(--bg-card));
+  &:hover {
+    border-color: rgba(0, 212, 255, 0.25);
+    background: var(--bg-card-hover);
   }
 }
 
 .stat-label {
-  color: var(--text-secondary);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
+  margin-bottom: 0.2rem;
 }
 
 .stat-value {
-  color: var(--text-primary);
-  font-size: 1.5rem;
+  font-size: 1.45rem;
   font-weight: 700;
   font-family: 'Courier New', monospace;
-  line-height: 1.2;
-}
-
-.rank-value {
-  color: var(--primary);
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .stat-sub {
-  color: var(--text-secondary);
-  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-size: 0.75rem;
   font-family: 'Courier New', monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 // ─── Chart ───────────────────────────────────────────────────────────────────
@@ -77,40 +88,6 @@
   padding: 1.25rem 1.5rem;
 }
 
-.bar-chart {
-  display: flex;
-  align-items: flex-end;
-  gap: 6px;
-  height: 100px;
-  padding-bottom: 1.5rem;
-  position: relative;
-}
-
-.bar-wrapper {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  height: 100%;
-  position: relative;
-}
-
-.bar {
-  width: 100%;
-  min-height: 4px;
-  background: linear-gradient(to top, var(--primary), rgba(0, 212, 255, 0.4));
-  border-radius: 4px 4px 0 0;
-  transition: height 0.4s ease;
-}
-
-.bar-label {
-  position: absolute;
-  bottom: -1.3rem;
-  color: var(--text-muted);
-  font-size: 0.68rem;
-  font-family: 'Courier New', monospace;
-}
 
 // ─── Indicators ──────────────────────────────────────────────────────────────
 
@@ -256,8 +233,8 @@
 
 .event-card {
   display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: 0.4rem;
   padding: 0.9rem 1rem;
   border-radius: 8px;
   border: 1px solid var(--border-color);
@@ -294,11 +271,17 @@
   flex: 1;
 }
 
+.event-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
 .event-title {
   color: var(--text-primary);
   font-size: 0.88rem;
-  display: block;
-  margin-bottom: 0.2rem;
+  font-weight: 600;
 }
 
 .event-desc {

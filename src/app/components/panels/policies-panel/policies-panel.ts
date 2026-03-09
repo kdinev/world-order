@@ -1,13 +1,21 @@
 import { Component, ChangeDetectionStrategy, inject, computed, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { TitleCasePipe } from '@angular/common';
+import { IgxSliderComponent } from 'igniteui-angular';
+import { IGX_BUTTON_GROUP_DIRECTIVES, IgxRippleDirective } from 'igniteui-angular';
 import { GameService } from '../../../services/game.service';
 import type { Budgets, Policies, TradePolicy, ImmigrationPolicy, EnvPolicy } from '../../../models/game.model';
 
 @Component({
   selector: 'app-policies-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, TitleCasePipe],
+  imports: [
+    ReactiveFormsModule,
+    TitleCasePipe,
+    IgxSliderComponent,
+    ...IGX_BUTTON_GROUP_DIRECTIVES,
+    IgxRippleDirective,
+  ],
   templateUrl: './policies-panel.html',
   styleUrl: './policies-panel.scss',
 })

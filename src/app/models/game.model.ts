@@ -1,4 +1,4 @@
-export type CountryPreset = 'agricultural' | 'industrial' | 'militaristic';
+export type CountryPreset = 'agricultural' | 'industrial' | 'militaristic' | 'custom';
 export type DiplomaticStance = 'allied' | 'friendly' | 'neutral' | 'tense' | 'hostile' | 'war';
 export type TradePolicy = 'open' | 'moderate' | 'protected';
 export type ImmigrationPolicy = 'open' | 'moderate' | 'restricted';
@@ -114,6 +114,7 @@ export interface GameState {
   turn: number;
   year: number;
   quarter: number;
+  day: number;
   playerCountryId: string;
   countries: Country[];
   recentEvents: GameEvent[];

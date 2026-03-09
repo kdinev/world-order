@@ -16,65 +16,178 @@
     @if (!selectedPreset()) {
       <section class="preset-selection" aria-label="Choose nation foundation">
         <h2 class="section-heading">Choose Your Nation's Foundation</h2>
+        <p class="balance-hint">All four paths share the same balanced starting budget of <strong>336 pts</strong> — only where you invest differs.</p>
         <div class="presets-grid">
           @for (preset of presets; track preset.id) {
-            <button
+            <div
               class="preset-card"
-              type="button"
+              [class.preset-card--custom]="preset.id === 'custom'"
+              role="button"
+              tabindex="0"
               (click)="selectPreset(preset.id)"
-              [attr.aria-label]="'Select ' + preset.label + ' preset: ' + preset.tagline"
+              (keydown.enter)="selectPreset(preset.id)"
+              (keydown.space)="selectPreset(preset.id)"
+              [attr.aria-label]="'Select ' + preset.label + ': ' + preset.tagline"
             >
               <div class="preset-icon" aria-hidden="true">{{ preset.icon }}</div>
               <h3 class="preset-name">{{ preset.label }}</h3>
               <p class="preset-tagline">{{ preset.tagline }}</p>
-              <p class="preset-desc">{{ preset.description }}</p>
-              <span class="preset-cta">Select →</span>
-            </button>
+
+              @if (preset.id !== 'custom') {
+                <!-- Stat bars -->
+                <div class="preset-stats" role="list" [attr.aria-label]="preset.label + ' starting statistics'">
+                  @for (stat of preset.stats; track stat.key) {
+                    <div class="stat-row" role="listitem">
+                      <span class="stat-row-label">{{ stat.label }}</span>
+                      <div class="stat-bar-track" aria-hidden="true">
+                        <div
+                          class="stat-bar-fill"
+                          [class]="'stat-bar-fill--' + stat.key"
+                          [style.width.%]="(stat.value / 80) * 100"
+                        ></div>
+                      </div>
+                      <span class="stat-row-val" aria-hidden="true">{{ stat.value }}</span>
+                    </div>
+                  }
+                </div>
+
+                <!-- Pros -->
+                @if (preset.pros.length) {
+                  <ul class="preset-pros" aria-label="Advantages">
+                    @for (pro of preset.pros; track pro) {
+                      <li>{{ pro }}</li>
+                    }
+                  </ul>
+                }
+
+                <!-- Cons -->
+                @if (preset.cons.length) {
+                  <ul class="preset-cons" aria-label="Disadvantages">
+                    @for (con of preset.cons; track con) {
+                      <li>{{ con }}</li>
+                    }
+                  </ul>
+                }
+              } @else {
+                <!-- Custom card content -->
+                <p class="preset-desc custom-blurb">{{ preset.description }}</p>
+                <div class="custom-dim-chips" aria-label="Configurable dimensions">
+                  @for (dim of CUSTOM_DIMS; track dim.key) {
+                    <span class="dim-chip dim-chip--{{ dim.key }}">{{ dim.icon }} {{ dim.label }}</span>
+                  }
+                </div>
+                <p class="budget-total-hint">Budget: <strong>{{ CUSTOM_BUDGET }} pts</strong></p>
+              }
+
+              <span class="preset-cta">
+                {{ preset.id === 'custom' ? '🔧 Build Nation →' : 'Select →' }}
+              </span>
+            </div>
           }
         </div>
       </section>
     } @else {
       <section class="nation-setup" aria-label="Configure your nation">
-        <button class="back-btn" type="button" (click)="backToPresets()">← Back</button>
+        <button igxButton="flat" igxRipple type="button" class="back-btn" (click)="backToPresets()">← Back</button>
 
         <h2 class="section-heading">Establish Your Nation</h2>
+
+        @if (selectedPreset() === 'custom') {
+          <!-- Custom allocation sliders -->
+          <div class="custom-allocation" aria-label="Allocate starting points across dimensions">
+            <div class="alloc-header">
+              <h3 class="alloc-title">Allocate Starting Points</h3>
+              <div
+                class="budget-status"
+                [class.budget-status--ok]="customTotal() <= CUSTOM_BUDGET"
+                [class.budget-status--over]="customTotal() > CUSTOM_BUDGET"
+                role="meter"
+                [attr.aria-valuenow]="customTotal()"
+                [attr.aria-valuemax]="CUSTOM_BUDGET"
+                [attr.aria-label]="'Budget: ' + customTotal() + ' of ' + CUSTOM_BUDGET + ' points used'"
+              >
+                <span class="budget-used">{{ customTotal() }}/{{ CUSTOM_BUDGET }}</span>
+                @if (remainingBudget() >= 0) {
+                  <span class="budget-remaining">{{ remainingBudget() }} remaining</span>
+                } @else {
+                  <span class="budget-over">{{ -remainingBudget() }} over budget</span>
+                }
+              </div>
+            </div>
+            <div class="budget-bar-track" aria-hidden="true">
+              <div
+                class="budget-bar-fill"
+                [class.budget-bar-fill--over]="customTotal() > CUSTOM_BUDGET"
+                [style.width.%]="budgetPercent()"
+              ></div>
+            </div>
+
+            <div class="alloc-dims">
+              @for (dim of CUSTOM_DIMS; track dim.key) {
+                <div class="alloc-row">
+                  <div class="alloc-label-row">
+                    <span class="alloc-dim-name">{{ dim.icon }} {{ dim.label }}</span>
+                    <span class="alloc-dim-val">{{ customAlloc()[dim.key] }}</span>
+                  </div>
+                  <input
+                    type="range"
+                    class="alloc-slider alloc-slider--{{ dim.key }}"
+                    [value]="customAlloc()[dim.key]"
+                    min="0"
+                    max="80"
+                    (input)="setAlloc(dim.key, +$any($event.target).value)"
+                    [attr.aria-label]="dim.label + ' allocation'"
+                    [attr.aria-valuenow]="customAlloc()[dim.key]"
+                    aria-valuemin="0"
+                    aria-valuemax="80"
+                  />
+                  <p class="alloc-dim-desc">{{ dim.description }}</p>
+                </div>
+              }
+            </div>
+          </div>
+        }
 
         <form [formGroup]="form" (ngSubmit)="startGame()" class="setup-form" novalidate>
           <div class="form-row">
             <div class="form-field">
-              <label for="countryName" class="field-label">Nation Name</label>
-              <input
-                id="countryName"
-                type="text"
-                formControlName="countryName"
-                class="field-input"
-                placeholder="e.g. Novara"
-                autocomplete="off"
-                [attr.aria-invalid]="form.controls.countryName.invalid && form.controls.countryName.touched"
-                [attr.aria-describedby]="form.controls.countryName.invalid && form.controls.countryName.touched ? 'name-error' : null"
-              />
+              <igx-input-group>
+                <label igxLabel for="countryName">Nation Name</label>
+                <input
+                  igxInput
+                  id="countryName"
+                  type="text"
+                  formControlName="countryName"
+                  placeholder="e.g. Novara"
+                  autocomplete="off"
+                  [attr.aria-invalid]="form.controls.countryName.invalid && form.controls.countryName.touched"
+                  [attr.aria-describedby]="form.controls.countryName.invalid && form.controls.countryName.touched ? 'name-error' : null"
+                />
+              </igx-input-group>
               @if (form.controls.countryName.invalid && form.controls.countryName.touched) {
                 <span id="name-error" class="field-error" role="alert">Enter a name between 2 and 24 characters.</span>
               }
             </div>
 
             <div class="form-field form-field--short">
-              <label for="countryCode" class="field-label">Country Code</label>
               <div class="code-preview-wrapper">
                 <div class="code-badge" [style.background-color]="selectedColor()" aria-hidden="true">
                   {{ codePreview() || '??' }}
                 </div>
-                <input
-                  id="countryCode"
-                  type="text"
-                  formControlName="countryCode"
-                  class="field-input code-input"
-                  placeholder="XX"
-                  maxlength="2"
-                  autocomplete="off"
-                  [attr.aria-invalid]="form.controls.countryCode.invalid && form.controls.countryCode.touched"
-                  [attr.aria-describedby]="form.controls.countryCode.invalid && form.controls.countryCode.touched ? 'code-error' : null"
-                />
+                <igx-input-group>
+                  <label igxLabel for="countryCode">Country Code</label>
+                  <input
+                    igxInput
+                    id="countryCode"
+                    type="text"
+                    formControlName="countryCode"
+                    placeholder="XX"
+                    maxlength="2"
+                    autocomplete="off"
+                    [attr.aria-invalid]="form.controls.countryCode.invalid && form.controls.countryCode.touched"
+                    [attr.aria-describedby]="form.controls.countryCode.invalid && form.controls.countryCode.touched ? 'code-error' : null"
+                  />
+                </igx-input-group>
               </div>
               @if (form.controls.countryCode.invalid && form.controls.countryCode.touched) {
                 <span id="code-error" class="field-error" role="alert">Enter exactly 2 letters.</span>
@@ -100,10 +213,12 @@
           </div>
 
           <button
+            igxButton="contained"
+            igxRipple
             type="submit"
             class="establish-btn"
-            [attr.disabled]="form.invalid ? '' : null"
-            [attr.aria-disabled]="form.invalid"
+            [disabled]="!canEstablish()"
+            [attr.aria-disabled]="!canEstablish()"
           >
             🌐 Establish Nation
           </button>

@@ -1,5 +1,84 @@
 /* Global styles for World Order */
 
+// ─── Ignite UI Angular Theme ──────────────────────────────────────────────────
+@use "igniteui-angular/theming" as *;
+
+$world-order-palette: palette(
+  $primary: #00d4ff,
+  $secondary: #7c4dff,
+  $surface: #0a1f3d
+);
+
+@include core();
+@include typography($font-family: $material-typeface, $type-scale: $material-type-scale);
+@include theme($palette: $world-order-palette, $schema: $dark-material-schema);
+
+// ─── Button Group Theme ───────────────────────────────────────────────────────
+$button-group-theme: button-group-theme(
+  $schema: $dark-material-schema,
+  $item-background: var(--ig-surface-700),
+  $item-selected-background: var(--ig-primary-500)
+);
+
+igx-buttongroup {
+  @include tokens($button-group-theme);
+}
+
+// ─── Tabs Theme ───────────────────────────────────────────────────────────────
+$custom-tabs-theme: tabs-theme(
+  $schema: $dark-material-schema,
+  $item-background: var(--ig-surface-500),
+  $item-active-color: var(--ig-primary-500),
+  $item-text-color: var(--ig-gray-500),
+  $indicator-color: var(--ig-primary-500),
+  $item-hover-color: var(--ig-primary-300),
+  $tab-ripple-color: var(--ig-primary-500)
+);
+
+igx-tabs {
+  @include tokens($custom-tabs-theme);
+}
+
+// ─── Chip Theme ──────────────────────────────────────────────────────────────
+$custom-chip-theme: chip-theme(
+  $schema: $dark-material-schema,
+  $background: rgba(255, 255, 255, 0.06),
+  $border-color: rgba(255, 255, 255, 0.12),
+  $text-color: #a0b8cc,
+  $hover-background: rgba(255, 255, 255, 0.1),
+  $hover-border-color: rgba(255, 255, 255, 0.2),
+  $focus-background: rgba(0, 212, 255, 0.12),
+  $focus-border-color: rgba(0, 212, 255, 0.4)
+);
+
+igx-chip {
+  @include tokens($custom-chip-theme);
+}
+
+// ─── Grid Theme ──────────────────────────────────────────────────────────────
+$custom-grid-theme: grid-theme(
+  $schema: $dark-material-schema,
+  $header-background: #0a1f3d,
+  $header-text-color: #5a7a8f,
+  $header-border-color: rgba(255, 255, 255, 0.08),
+  $content-background: #040d1e,
+  $row-odd-background: #040d1e,
+  $row-even-background: #06122a,
+  $row-hover-background: #0d2548,
+  $row-selected-background: rgba(0, 212, 255, 0.12),
+  $row-selected-hover-background: rgba(0, 212, 255, 0.18),
+  $cell-selected-background: rgba(0, 212, 255, 0.08),
+  $cell-selected-within-background: rgba(0, 212, 255, 0.08),
+  $row-border-color: rgba(255, 255, 255, 0.06),
+  $sorted-header-icon-color: #00d4ff,
+  $resize-line-color: #00d4ff,
+  $drop-indicator-color: #00d4ff
+);
+
+igx-grid {
+  @include tokens($custom-grid-theme);
+}
+
 // ─── CSS Custom Properties ────────────────────────────────────────────────────
 :root {
   --bg-primary: #040d1e;

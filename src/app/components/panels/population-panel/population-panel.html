@@ -4,26 +4,18 @@
   <div class="population">
     <!-- Vital stats -->
     <section class="stat-grid" aria-label="Population statistics">
-      <div class="stat-card">
-        <span class="stat-label">Total Population</span>
-        <span class="stat-value">{{ formatPop(p.population) }}</span>
-        <span class="stat-sub">Growth: {{ p.populationGrowthRate.toFixed(1) }}%/yr</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">Life Expectancy</span>
-        <span class="stat-value" [style.color]="scoreColor(((p.lifeExpectancy - 55) / 35) * 100)">{{ p.lifeExpectancy.toFixed(1) }} yr</span>
-        <span class="stat-sub">World avg: 72 yr</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">Literacy Rate</span>
-        <span class="stat-value" [style.color]="scoreColor(p.literacyRate)">{{ p.literacyRate.toFixed(0) }}%</span>
-        <span class="stat-sub">Urbanisation: {{ p.urbanizationRate.toFixed(0) }}%</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">Active Workforce</span>
-        <span class="stat-value">{{ formatPop(activeWorkforce()) }}</span>
-        <span class="stat-sub">{{ p.workingPercent.toFixed(0) }}% working age</span>
-      </div>
+      @for (card of [
+        { label: 'Total Population', value: formatPop(p.population), sub: 'Growth: ' + p.populationGrowthRate.toFixed(1) + '%/yr' },
+        { label: 'Life Expectancy', value: p.lifeExpectancy.toFixed(1) + ' yr', sub: 'World avg: 72 yr' },
+        { label: 'Literacy Rate', value: p.literacyRate.toFixed(0) + '%', sub: 'Urbanisation: ' + p.urbanizationRate.toFixed(0) + '%' },
+        { label: 'Active Workforce', value: formatPop(activeWorkforce()), sub: p.workingPercent.toFixed(0) + '% working age' }
+      ]; track card.label) {
+        <div class="stat-card" role="figure" [attr.aria-label]="card.label + ': ' + card.value">
+          <span class="stat-label">{{ card.label }}</span>
+          <span class="stat-value">{{ card.value }}</span>
+          <span class="stat-sub">{{ card.sub }}</span>
+        </div>
+      }
     </section>
 
     <!-- Demographics Donut -->
@@ -61,27 +53,25 @@
     <section class="labour-section" aria-label="Labour market">
       <h3 class="section-title">Labour Market</h3>
       <div class="labour-grid">
-        <div class="labour-card">
-          <span class="labour-label">Unemployment Rate</span>
-          <span class="labour-value" [style.color]="scoreColor(100 - p.unemploymentRate * 4)">{{ p.unemploymentRate.toFixed(1) }}%</span>
-          <div class="progress-bar" role="progressbar" [attr.aria-valuenow]="p.unemploymentRate" aria-valuemin="0" aria-valuemax="40" [attr.aria-label]="'Unemployment ' + p.unemploymentRate.toFixed(1) + '%'">
-            <div class="progress-fill" [style.width.%]="p.unemploymentRate / 40 * 100" [style.background]="scoreColor(100 - p.unemploymentRate * 4)"></div>
+        @for (item of [
+          { label: 'Unemployment Rate', rawValue: p.unemploymentRate, displayValue: p.unemploymentRate.toFixed(1) + '%', barValue: p.unemploymentRate / 40 * 100, invert: true },
+          { label: 'Workforce Skill Level', rawValue: p.workforceSkillLevel, displayValue: p.workforceSkillLevel.toFixed(0) + '/100', barValue: p.workforceSkillLevel, invert: false },
+          { label: 'Labour Productivity', rawValue: p.laborProductivity, displayValue: p.laborProductivity.toFixed(0) + '/100', barValue: p.laborProductivity, invert: false }
+        ]; track item.label) {
+          <div class="labour-card">
+            <div class="labour-card-header">
+              <span class="labour-label">{{ item.label }}</span>
+              <span class="labour-value" [style.color]="scoreColor(item.barValue, item.invert)">{{ item.displayValue }}</span>
+            </div>
+            <igx-linear-bar
+              [value]="item.barValue"
+              [max]="100"
+              [type]="progressType(item.barValue, item.invert)"
+              [textVisibility]="false"
+              [attr.aria-label]="item.label + ' ' + item.displayValue"
+            ></igx-linear-bar>
           </div>
-        </div>
-        <div class="labour-card">
-          <span class="labour-label">Workforce Skill Level</span>
-          <span class="labour-value" [style.color]="scoreColor(p.workforceSkillLevel)">{{ p.workforceSkillLevel.toFixed(0) }}/100</span>
-          <div class="progress-bar" role="progressbar" [attr.aria-valuenow]="p.workforceSkillLevel" aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="'Workforce skill ' + p.workforceSkillLevel.toFixed(0) + ' out of 100'">
-            <div class="progress-fill" [style.width.%]="p.workforceSkillLevel" [style.background]="scoreColor(p.workforceSkillLevel)"></div>
-          </div>
-        </div>
-        <div class="labour-card">
-          <span class="labour-label">Labour Productivity</span>
-          <span class="labour-value" [style.color]="scoreColor(p.laborProductivity)">{{ p.laborProductivity.toFixed(0) }}/100</span>
-          <div class="progress-bar" role="progressbar" [attr.aria-valuenow]="p.laborProductivity" aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="'Labour productivity ' + p.laborProductivity.toFixed(0) + ' out of 100'">
-            <div class="progress-fill" [style.width.%]="p.laborProductivity" [style.background]="scoreColor(p.laborProductivity)"></div>
-          </div>
-        </div>
+        }
       </div>
     </section>
 
@@ -100,16 +90,22 @@
           { label: 'Human Dev. Index', value: p.hdi * 100, icon: '👤', invert: false }
         ]; track item.label) {
           <div class="wellbeing-card">
-            <div class="wellbeing-header">
-              <span aria-hidden="true">{{ item.icon }}</span>
-              <span class="wellbeing-label">{{ item.label }}</span>
+            <div class="wellbeing-card-header">
+              <span class="wellbeing-title">
+                <span aria-hidden="true">{{ item.icon }}</span>
+                {{ item.label }}
+              </span>
+              <span class="wellbeing-value" [style.color]="scoreColor(item.invert ? 100 - item.value : item.value)">
+                {{ item.label === 'Human Dev. Index' ? (p.hdi.toFixed(3)) : (item.value.toFixed(0) + '/100') }}
+              </span>
             </div>
-            <span class="wellbeing-value" [style.color]="scoreColor(item.invert ? 100 - item.value : item.value)">
-              {{ item.label === 'Human Dev. Index' ? (p.hdi.toFixed(3)) : (item.value.toFixed(0) + '/100') }}
-            </span>
-            <div class="progress-bar" role="progressbar" [attr.aria-valuenow]="item.value" aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="item.label + ' ' + item.value.toFixed(0)">
-              <div class="progress-fill" [style.width.%]="item.value" [style.background]="scoreColor(item.invert ? 100 - item.value : item.value)"></div>
-            </div>
+            <igx-linear-bar
+              [value]="item.value"
+              [max]="100"
+              [type]="progressType(item.value, item.invert)"
+              [textVisibility]="false"
+              [attr.aria-label]="item.label + ' ' + item.value.toFixed(0)"
+            ></igx-linear-bar>
           </div>
         }
       </div>

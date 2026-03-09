@@ -4,40 +4,20 @@
   <div class="economy">
     <!-- Key Economic Stats -->
     <section class="stat-grid" aria-label="Economic statistics">
-      <div class="stat-card stat-card--primary">
-        <span class="stat-label">GDP</span>
-        <span class="stat-value">{{ formatGdp(p.gdp) }}</span>
-        <span class="stat-sub">GDP/cap: ${{ p.gdpPerCapita.toLocaleString() }}</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">Growth Rate</span>
-        <span class="stat-value" [style.color]="balanceColor(p.gdpGrowthRate)">
-          {{ p.gdpGrowthRate >= 0 ? '+' : '' }}{{ p.gdpGrowthRate.toFixed(2) }}%
-        </span>
-        <span class="stat-sub">Annual rate</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">Inflation</span>
-        <span class="stat-value" [style.color]="balanceColor(5 - p.inflation)">{{ p.inflation.toFixed(1) }}%</span>
-        <span class="stat-sub">Target: &lt;3%</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">National Debt</span>
-        <span class="stat-value" [style.color]="balanceColor(80 - p.nationalDebt)">{{ p.nationalDebt.toFixed(1) }}%</span>
-        <span class="stat-sub">of GDP</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">Net FDI</span>
-        <span class="stat-value" [style.color]="balanceColor(p.fdi)">{{ formatGdp(p.fdi) }}</span>
-        <span class="stat-sub">per year</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">Trade Balance</span>
-        <span class="stat-value" [style.color]="balanceColor(tradeBalance())">
-          {{ tradeBalance() >= 0 ? '+' : '' }}{{ formatGdp(absValue(tradeBalance())) }}
-        </span>
-        <span class="stat-sub">Surplus / Deficit</span>
-      </div>
+      @for (card of [
+        { label: 'GDP', value: formatGdp(p.gdp), sub: 'GDP/cap: $' + p.gdpPerCapita.toLocaleString() },
+        { label: 'Growth Rate', value: (p.gdpGrowthRate >= 0 ? '+' : '') + p.gdpGrowthRate.toFixed(2) + '%', sub: 'Annual rate', color: balanceColor(p.gdpGrowthRate) },
+        { label: 'Inflation', value: p.inflation.toFixed(1) + '%', sub: 'Target: <3%', color: balanceColor(5 - p.inflation) },
+        { label: 'National Debt', value: p.nationalDebt.toFixed(1) + '%', sub: 'of GDP', color: balanceColor(80 - p.nationalDebt) },
+        { label: 'Net FDI', value: formatGdp(p.fdi), sub: 'per year', color: balanceColor(p.fdi) },
+        { label: 'Trade Balance', value: (tradeBalance() >= 0 ? '+' : '') + formatGdp(absValue(tradeBalance())), sub: 'Surplus / Deficit', color: balanceColor(tradeBalance()) }
+      ]; track card.label) {
+        <div class="stat-card" role="figure" [attr.aria-label]="card.label + ': ' + card.value">
+          <span class="stat-label">{{ card.label }}</span>
+          <span class="stat-value" [style.color]="card.color">{{ card.value }}</span>
+          <span class="stat-sub">{{ card.sub }}</span>
+        </div>
+      }
     </section>
 
     <!-- Economy Sectors -->
@@ -48,9 +28,14 @@
           <div class="sector-row">
             <span class="sector-icon" aria-hidden="true">{{ sector.icon }}</span>
             <span class="sector-label">{{ sector.label }}</span>
-            <div class="sector-bar-track" role="progressbar" [attr.aria-valuenow]="sector.value" aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="sector.label + ' ' + sector.value + '% of GDP'">
-              <div class="sector-bar-fill" [style.width.%]="sector.barWidth" [style.background]="sector.color"></div>
-            </div>
+            <igx-linear-bar
+              [value]="sector.barWidth"
+              [max]="100"
+              [textVisibility]="false"
+              type="default"
+              class="sector-bar-igx"
+              [attr.aria-label]="sector.label + ' ' + sector.value + '% of GDP'"
+            ></igx-linear-bar>
             <span class="sector-pct" [style.color]="sector.color">{{ sector.value }}%</span>
           </div>
         }
@@ -97,9 +82,13 @@
               <span class="biz-label">{{ item.label }}</span>
               <span class="biz-val" [style.color]="scoreColor(item.value)">{{ item.value.toFixed(0) }}/100</span>
             </div>
-            <div class="progress-bar" role="progressbar" [attr.aria-valuenow]="item.value" aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="item.label + ' score ' + item.value.toFixed(0)">
-              <div class="progress-fill" [style.width.%]="item.value" [style.background]="scoreColor(item.value)"></div>
-            </div>
+            <igx-linear-bar
+              [value]="item.value"
+              [max]="100"
+              [type]="progressType(item.value)"
+              [textVisibility]="false"
+              [attr.aria-label]="item.label + ' score ' + item.value.toFixed(0)"
+            ></igx-linear-bar>
           </div>
         }
       </div>
@@ -123,9 +112,14 @@
         @for (item of budgetBreakdown(); track item.label) {
           <div class="budget-bar-row">
             <span class="budget-bar-label">{{ item.label }}</span>
-            <div class="budget-bar-track" role="progressbar" [attr.aria-valuenow]="item.pct" aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="item.label + ' ' + item.pct + '% of budget'">
-              <div class="budget-bar-fill" [style.width.%]="item.pct" [style.background]="item.color"></div>
-            </div>
+            <igx-linear-bar
+              [value]="item.pct"
+              [max]="100"
+              [textVisibility]="false"
+              type="default"
+              class="budget-bar-igx"
+              [attr.aria-label]="item.label + ' ' + item.pct + '% of budget'"
+            ></igx-linear-bar>
             <span class="budget-bar-pct" [style.color]="item.color">{{ item.pct }}%</span>
             <span class="budget-bar-amt">{{ formatGdp(item.amount) }}</span>
           </div>
