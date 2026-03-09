@@ -1,59 +1,103 @@
 # WorldOrder
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.5.
+A strategy/geopolitics simulation game built with Angular. Manage nations, economies, and global policies in a dynamic world order simulation.
 
-## Development server
+## Project Overview
 
-To start a local development server, run:
+WorldOrder is an interactive game where players manage country simulations across multiple domains:
+- **Economy**: Trade, resources, and financial systems
+- **Geopolitics**: International relations and conflicts
+- **Population**: Demographics and social systems
+- **Policies**: Government decisions and their impacts
+- **Overview**: Comprehensive game state and statistics
 
-```bash
-ng serve
+Built with modern Angular 21+ using standalone components, signals, and server-side rendering for optimal performance and user experience.
+
+## Project Structure
+
+```
+src/app/
+├── components/
+│   ├── dashboard/          # Main game interface
+│   └── panels/             # Domain-specific panels
+│       ├── economy-panel/
+│       ├── geopolitics-panel/
+│       ├── overview-panel/
+│       ├── policies-panel/
+│       └── population-panel/
+├── services/
+│   ├── game.service.ts     # Core game logic
+│   └── turn-engine.service.ts  # Turn management
+├── models/
+│   └── game.model.ts       # Type definitions
+├── guards/
+│   └── game-active.guard.ts # Route protection
+└── data/
+    ├── events.data.ts      # Game events
+    ├── player-presets.data.ts  # Preset configurations
+    └── world-countries.data.ts # Country data
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Development
 
-## Code scaffolding
+### Prerequisites
+- Node.js 18+
+- npm 9+
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### Setup
 
+Install dependencies:
+```bash
+npm install
+```
+
+### Development Server
+
+Start the local development server:
+```bash
+npm start
+```
+
+Navigate to `http://localhost:4200/`. The application automatically reloads when you modify source files.
+
+### Code Generation
+
+Generate new components with Angular CLI:
 ```bash
 ng generate component component-name
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
+For all available schematics:
 ```bash
 ng generate --help
 ```
 
-## Building
+### Building
 
-To build the project run:
-
+Build the project for production:
 ```bash
-ng build
+npm run build
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Output is stored in the `dist/` directory with production optimizations enabled.
 
-## Running unit tests
+### Testing
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
+Run unit tests with [Vitest](https://vitest.dev/):
 ```bash
-ng test
+npm run test
 ```
 
-## Running end-to-end tests
+## Technology Stack
 
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+- **Framework**: [Angular 21+](https://angular.dev)
+- **Language**: TypeScript
+- **Styling**: SCSS
+- **Testing**: Vitest
+- **Build Tool**: Angular CLI
+- **SSR**: Angular Universal
 
 ## Additional Resources
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- [Angular Documentation](https://angular.dev)
+- [Angular CLI Reference](https://angular.dev/tools/cli)
