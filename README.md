@@ -96,8 +96,10 @@ npm run test
 - **Testing**: Vitest
 - **Build Tool**: Angular CLI
 - **SSR**: Angular Universal
+- **UI Components**: [Ignite UI for Angular](https://www.infragistics.com/products/ignite-ui-angular)
 
 ## Additional Resources
 
 - [Angular Documentation](https://angular.dev)
 - [Angular CLI Reference](https://angular.dev/tools/cli)
+- [Ignite UI for Angular GitHub Repository](https://github.com/IgniteUI/igniteui-angular)
