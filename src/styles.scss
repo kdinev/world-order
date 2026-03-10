@@ -1,12 +1,16 @@
 /* Global styles for World Order */
 
 // ─── Ignite UI Angular Theme ──────────────────────────────────────────────────
-@use "igniteui-angular/theming" as *;
+@use "@infragistics/igniteui-angular/theming" as *;
 
 $world-order-palette: palette(
   $primary: #00d4ff,
   $secondary: #7c4dff,
-  $surface: #0a1f3d
+  $surface: #0a1f3d,
+  $info: #2979ff,
+  $success: #00e676,
+  $warn: #ffab00,
+  $error: #ff1744
 );
 
 @include core();
