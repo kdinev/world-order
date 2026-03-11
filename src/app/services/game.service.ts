@@ -1,4 +1,4 @@
-import { Injectable, signal, computed, inject, PLATFORM_ID } from '@angular/core';
+import { Injectable, signal, computed, inject, effect, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import type { Country, CountryPreset, GameState, Budgets, Policies, Relation, GameEvent } from '../models/game.model';
 import { WORLD_COUNTRIES } from '../data/world-countries.data';
@@ -23,6 +23,7 @@ function buildRelations(countries: Country[], forCountryId: string): Relation[] 
 }
 
 const START_YEAR = 2026;
+const GAME_STATE_KEY = 'wo_game_state';
 
 @Injectable({ providedIn: 'root' })
 export class GameService {
@@ -46,6 +47,7 @@ export class GameService {
 
   readonly state = this._state.asReadonly();
   readonly isStarted = computed(() => this._state().started);
+  readonly hasSavedGame = computed(() => this._state().started);
   readonly turn = computed(() => this._state().turn);
   readonly year = computed(() => this._state().year);
   readonly quarter = computed(() => this._state().quarter);
@@ -69,6 +71,55 @@ export class GameService {
     const idx = ranked.findIndex(c => c.id === id);
     return idx === -1 ? 0 : idx + 1;
   });
+
+  constructor() {
+    if (isPlatformBrowser(this.platformId)) {
+      const saved = this.loadSavedState();
+      if (saved?.started) {
+        this._state.set(saved);
+        // Restore paused — user can manually resume from the dashboard.
+        this._isPaused.set(true);
+      }
+    }
+    // Auto-persist state changes to localStorage.
+    effect(() => {
+      const state = this._state();
+      if (!isPlatformBrowser(this.platformId)) return;
+      try {
+        localStorage.setItem(GAME_STATE_KEY, JSON.stringify(state));
+      } catch {
+        // Quota exceeded — silently ignore.
+      }
+    });
+  }
+
+  private loadSavedState(): GameState | null {
+    try {
+      const raw = localStorage.getItem(GAME_STATE_KEY);
+      return raw ? (JSON.parse(raw) as GameState) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  /** Resets all game progress and clears the persisted save. */
+  clearSavedGame(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem(GAME_STATE_KEY);
+    }
+    this.pause();
+    this._state.set({
+      started: false,
+      turn: 0,
+      year: START_YEAR,
+      quarter: 1,
+      day: 1,
+      playerCountryId: '',
+      countries: [],
+      recentEvents: [],
+      allEvents: [],
+    });
+  }
 
   // ─── Game Lifecycle ────────────────────────────────────────────────────────
 
