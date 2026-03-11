@@ -6,12 +6,59 @@
     <div class="orb orb-3"></div>
   </div>
 
+  <!-- Logged-in user bar -->
+  <div class="user-bar" aria-label="Signed-in user">
+    @if (user()?.avatar) {
+      <img class="user-avatar" [src]="user()!.avatar" [alt]="user()!.name + ' avatar'" width="28" height="28" />
+    } @else {
+      <span class="user-avatar-icon" aria-hidden="true">👤</span>
+    }
+    <span class="user-name">{{ user()?.name }}</span>
+    <span class="user-provider provider-{{ user()?.provider }}" aria-hidden="true">
+      @if (user()?.provider === 'google') { G }
+      @else if (user()?.provider === 'github') { GH }
+      @else { Guest }
+    </span>
+    <button
+      igxButton="flat"
+      igxRipple
+      class="sign-out-btn"
+      (click)="signOut()"
+      aria-label="Sign out"
+    >
+      Sign out
+    </button>
+  </div>
+
   <main class="content" role="main">
     <header class="title-section">
       <div class="world-icon" aria-hidden="true">🌐</div>
       <h1 class="game-title">WORLD ORDER</h1>
       <p class="subtitle">Build your nation. Shape the world.</p>
     </header>
+
+    <!-- Continue saved game banner -->
+    @if (game.hasSavedGame()) {
+      <section class="continue-banner" aria-label="Saved game found">
+        <div class="continue-info">
+          <span class="continue-icon" aria-hidden="true">💾</span>
+          <div>
+            <p class="continue-title">Saved game found</p>
+            <p class="continue-meta">
+              {{ game.playerCountry()?.name }} &bull; Year {{ game.year() }}, Q{{ game.quarter() }}
+            </p>
+          </div>
+        </div>
+        <div class="continue-actions">
+          <button igxButton="contained" igxRipple class="continue-btn" (click)="continueGame()">
+            ▶ Continue
+          </button>
+          <button igxButton="outlined" igxRipple class="new-game-btn" (click)="newGame()" aria-label="Start a new game and discard the saved one">
+            New Game
+          </button>
+        </div>
+      </section>
+    }
 
     @if (!selectedPreset()) {
       <section class="preset-selection" aria-label="Choose nation foundation">
