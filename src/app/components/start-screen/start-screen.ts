@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { GameService } from '../../services/game.service';
+import { AuthService } from '../../services/auth.service';
 import { PRESET_INFO, buildCustomPreset, CUSTOM_BUDGET, type PresetInfoEntry } from '../../data/player-presets.data';
 import type { CountryPreset } from '../../models/game.model';
 import { IGX_INPUT_GROUP_DIRECTIVES } from 'igniteui-angular';
@@ -36,7 +37,10 @@ interface CustomDimConfig {
 })
 export class StartScreenComponent {
   private readonly router = inject(Router);
-  private readonly game = inject(GameService);
+  readonly game = inject(GameService);
+  readonly auth = inject(AuthService);
+
+  readonly user = this.auth.user;
 
   readonly presets: ({ id: CountryPreset } & PresetInfoEntry)[] = (
     Object.entries(PRESET_INFO) as [CountryPreset, PresetInfoEntry][]
@@ -121,5 +125,19 @@ export class StartScreenComponent {
       this.game.startGame(countryName, countryCode, this.selectedColor(), preset);
     }
     this.router.navigate(['/game']);
+  }
+
+  continueGame(): void {
+    this.router.navigate(['/game']);
+  }
+
+  newGame(): void {
+    this.game.clearSavedGame();
+  }
+
+  signOut(): void {
+    this.game.clearSavedGame();
+    this.auth.signOut();
+    this.router.navigate(['/login']);
   }
 }

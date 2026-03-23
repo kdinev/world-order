@@ -5,6 +5,116 @@
   min-height: 100vh;
 }
 
+// ─── User bar ────────────────────────────────────────────────────────────────
+
+.user-bar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 1.25rem;
+  background: rgba(4, 13, 30, 0.85);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(0, 212, 255, 0.08);
+}
+
+.user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+}
+
+.user-avatar-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.user-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.user-provider {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 0.15em 0.45em;
+  border-radius: 4px;
+  text-transform: uppercase;
+
+  &.provider-google  { background: rgba(66, 133, 244, 0.2); color: #4285F4; }
+  &.provider-github  { background: rgba(255, 255, 255, 0.1); color: #ccc; }
+  &.provider-guest   { background: rgba(0, 212, 255, 0.1); color: var(--primary); }
+}
+
+.sign-out-btn {
+  margin-left: auto;
+  font-size: 0.75rem;
+  opacity: 0.7;
+  &:hover { opacity: 1; }
+}
+
+// ─── Continue game banner ─────────────────────────────────────────────────────
+
+.continue-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  background: rgba(0, 212, 255, 0.06);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.continue-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.continue-icon {
+  font-size: 1.5rem;
+}
+
+.continue-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0 0 0.15rem;
+}
+
+.continue-meta {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.continue-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.continue-btn {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.new-game-btn {
+  font-size: 0.82rem;
+}
+
 // ─── Background ─────────────────────────────────────────────────────────────
 
 .start-screen {
@@ -15,7 +125,7 @@
   justify-content: center;
   overflow: hidden;
   background: var(--bg-primary);
-  padding: 2rem 1rem;
+  padding: 4rem 1rem 2rem; // extra top padding for the fixed user bar
 }
 
 .bg-grid {
