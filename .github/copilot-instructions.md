@@ -57,4 +57,4 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 
 ## UI Components
 
-- Use `igniteui-angular` for UI components
+- Use `igniteui-angular`
